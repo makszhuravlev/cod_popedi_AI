@@ -2,12 +2,12 @@
   <div class="container">
     <h1>Искусство через призму военных лет</h1>
 
-    <input
-      class="inputstory"
-      v-model="text"
-      rows="6"
-      placeholder="Введите описание события..."
-    ></input>
+    <textarea
+    id="description"
+    rows="6"
+    v-model="text"
+    placeholder="Введите текст военного дневника..."
+  ></textarea>
 
     <div class="button-group">
       <button @click="generate('text')">Создать текст</button>
@@ -34,6 +34,20 @@ function generate(type) {
 </script>
 
 <style scoped>
+textarea {
+  width: 100%;
+  height: 450px;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background-color: #fffef8;
+  color: var(--text-main);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+  resize: none;
+}
 .button-group {
   display: flex;
   flex-wrap: wrap;
