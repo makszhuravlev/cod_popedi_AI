@@ -35,7 +35,7 @@ const buttonText = props.isLogin ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВА�
 
 function submit() {
 if (props.isLogin){
-  if(login.value && password.value){
+  if(email.value && password.value){
     if (1){
       router.push('/home')
     }else{
