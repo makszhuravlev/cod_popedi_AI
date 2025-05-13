@@ -118,3 +118,17 @@ a:hover {
     font-size: 0.95rem;
   }
 }
+
+textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: 'Georgia', serif;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background-color: #fffef8;
+  color: var(--text-main);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+  resize: vertical;
+}

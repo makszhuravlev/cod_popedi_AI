@@ -2,11 +2,12 @@
   <div class="container">
     <h1>Искусство через призму военных лет</h1>
 
-    <textarea
+    <input
+      class="inputstory"
       v-model="text"
       rows="6"
       placeholder="Введите описание события..."
-    ></textarea>
+    ></input>
 
     <div class="button-group">
       <button @click="generate('text')">Создать текст</button>
