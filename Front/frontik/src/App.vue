@@ -4,5 +4,4 @@
 </template>
 
 <script setup>
-// ничего не нужно здесь
 </script>
