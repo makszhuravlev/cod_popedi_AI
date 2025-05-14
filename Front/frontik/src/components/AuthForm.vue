@@ -108,7 +108,8 @@ async function submit() {
       })
 
       if (response.status === 'success') {
-        router.push('/home')
+        alert('Успешная регистрация')
+        router.push('/login')
       } else {
         alert(response.message || 'Ошибка регистрации')
       }

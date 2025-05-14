@@ -14,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Конфигурация БД
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1234@localhost/skvoz_veka")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1234@localhost/asd")
 
 async def get_db_conn():
     return await asyncpg.connect(DATABASE_URL)
@@ -38,7 +38,6 @@ def verify_password(stored_hash: str, password: str) -> bool:
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-
     try:
         while True:
             data = await websocket.receive_text()
@@ -54,9 +53,9 @@ async def websocket_endpoint(websocket: WebSocket):
                                 raise ValueError("Invalid hash format")
                                 
                             await conn.execute('''
-                                INSERT INTO users (email, username, hashedpassword)
+                                INSERT INTO users (email, login, password_hash)
                                 VALUES ($1, $2, $3)
-                            ''', message["email"], message["username"], client_hashed_password)
+                            ''', message["email"], message["login"], client_hashed_password)
                             
                             await websocket.send_json({
                                 "status": "success",
@@ -78,7 +77,6 @@ async def websocket_endpoint(websocket: WebSocket):
                             'SELECT * FROM users WHERE email = $1', 
                             message["email"]
                         )
-                        
                         if not user:
                             await websocket.send_json({
                                 "status": "error",
@@ -86,7 +84,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             })
                         else:
                             is_valid = verify_password(
-                                user["hashedpassword"],
+                                user["password_hash"],
                                 message["password"]
                             )
                             
@@ -96,7 +94,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                     "user": {
                                         "id": user["id"],
                                         "email": user["email"],
-                                        "login": user["username"]
+                                        "login": user["login"]
                                     }
                                 })
                             else:
