@@ -7,7 +7,13 @@ import hashlib
 import binascii
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Конфигурация БД
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1234@localhost/asd")
 
@@ -35,6 +41,7 @@ def verify_password(stored_hash: str, password: str) -> bool:
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+
     try:
         while True:
             data = await websocket.receive_text()
