@@ -5,7 +5,6 @@ import json
 import os
 import hashlib
 import binascii
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -15,11 +14,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Конфигурация БД
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1234@localhost/asd")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:1234@localhost/skvoz_veka")
 
 async def get_db_conn():
     return await asyncpg.connect(DATABASE_URL)
-
 def verify_password(stored_hash: str, password: str) -> bool:
     try:
         salt_hex, stored_hash_hex = stored_hash.split(':')
@@ -37,7 +35,6 @@ def verify_password(stored_hash: str, password: str) -> bool:
         
     except (ValueError, binascii.Error):
         return False
-
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -48,7 +45,6 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 message = json.loads(data)
                 action = message.get("action")
-
                 if action == "register":
                         conn = await get_db_conn()
                         try:
@@ -58,9 +54,9 @@ async def websocket_endpoint(websocket: WebSocket):
                                 raise ValueError("Invalid hash format")
                                 
                             await conn.execute('''
-                                INSERT INTO users (email, login, password_hash)
+                                INSERT INTO users (email, username, hashedpassword)
                                 VALUES ($1, $2, $3)
-                            ''', message["email"], message["login"], client_hashed_password)
+                            ''', message["email"], message["username"], client_hashed_password)
                             
                             await websocket.send_json({
                                 "status": "success",
@@ -76,7 +72,6 @@ async def websocket_endpoint(websocket: WebSocket):
                                 "status": "error",
                                 "message": str(e)
                             })
-
                 elif action == "login":
                         conn = await get_db_conn()
                         user = await conn.fetchrow(
@@ -91,7 +86,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             })
                         else:
                             is_valid = verify_password(
-                                user["password_hash"],
+                                user["hashedpassword"],
                                 message["password"]
                             )
                             
@@ -101,7 +96,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                     "user": {
                                         "id": user["id"],
                                         "email": user["email"],
-                                        "login": user["login"]
+                                        "login": user["username"]
                                     }
                                 })
                             else:
@@ -133,14 +128,11 @@ async def websocket_endpoint(websocket: WebSocket):
                                 "message": "E"
                             })
                     print('Ништяк4')
-
-
                 else:
                     await websocket.send_json({
                         "status": "error",
                         "message": "Invalid action"
                     })
-
             except json.JSONDecodeError:
                 await websocket.send_json({
                     "status": "error",
@@ -156,6 +148,5 @@ async def websocket_endpoint(websocket: WebSocket):
                     "status": "error",
                     "message": f"Сервер арбуз: {str(e)}"
                 })
-
     except WebSocketDisconnect:
         print("Client disconnected")
