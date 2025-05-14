@@ -34,7 +34,6 @@ const login = ref('')
 
 // WebSocket
 const WS_URL = 'ws://localhost:8000/ws'
-let ws = null
 
 // Helpers
 const title = props.isLogin ? 'ВОЙТИ' : 'РЕГИСТРАЦИЯ'

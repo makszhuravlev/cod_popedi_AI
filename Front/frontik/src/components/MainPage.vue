@@ -25,12 +25,52 @@
 
 <script setup>
 import { ref } from 'vue'
+const WS_URL = 'ws://localhost:8000/ws'
+const text = ref('')
+async function handleWebSocketRequest(data) {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(WS_URL)
 
-const text = ref(`Прошедший день был трудный. Но всё-таки нашим взводам удалось в очередной раз отбить атаку противника и удержать позиции.`)
+    ws.onopen = () => ws.send(JSON.stringify(data))
+    
+    ws.onmessage = (event) => {
+      try {
+        const response = JSON.parse(event.data)
+        ws.close()
+        resolve(response)
+      } catch (e) {
+        reject(e)
+      }
+    }
 
-function generate(type) {
-  alert(`Генерация типа: ${type}`)
+    ws.onerror = (error) => {
+      ws.close()
+      reject(new Error('Ошибка соединения'))
+    }
+
+    setTimeout(() => {
+      ws.close()
+      reject(new Error('Таймаут соединения'))
+    }, 5000)
+  })
 }
+async function generate(type) {
+  try {
+      const response = await handleWebSocketRequest({
+        action: type,
+        text: text.value,
+      })
+      console.log(1)
+      if (response.status == 'success') {
+        alert('Начало генирации')
+      } else {
+        alert('Ошибка генирации')
+      }
+    }
+    catch (error) {
+      console.error('Ошибка:', error)
+    }
+  }
 </script>
 
 <style scoped>

@@ -102,6 +102,31 @@ async def websocket_endpoint(websocket: WebSocket):
                                     "status": "error",
                                     "message": "Неверный пароль"
                                 })
+                elif action == "text":
+                    await websocket.send_json({
+                                "status": "success",
+                                "message": "E"
+                            })
+                    print('Ништяк1')
+                elif action == "image":
+                    await websocket.send_json({
+                                "status": "success",
+                                "message": "E"
+                            })
+                    print('Ништяк2')
+                elif action == "music":
+                    await websocket.send_json({
+                                "status": "success",
+                                "message": "E"
+                            })
+                    print('Ништяк3')
+                elif action == "all":
+                    await websocket.send_json({
+                                "status": "success",
+                                "message": "E"
+                            })
+                    print('Ништяк4')
+
 
                 else:
                     await websocket.send_json({
