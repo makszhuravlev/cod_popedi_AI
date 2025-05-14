@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container1">
     <h1>{{ title }}</h1>
     <input type="text" placeholder="Логин" v-if="!isLogin" v-e v-model="login" />
     <input type="email" placeholder="Электронная почта" v-model="email" />
@@ -20,31 +20,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+  import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
 const props = defineProps({ isLogin: Boolean })
+const router = useRouter()
+
+// Refs
 const email = ref('')
 const password = ref('')
 const password1 = ref('')
 const login = ref('')
-const router = useRouter()
 
-const WS_URL = ''
+// WebSocket
+const WS_URL = 'ws://localhost:8000/ws'
+let ws = null
+
+// Helpers
 const title = props.isLogin ? 'ВОЙТИ' : 'РЕГИСТРАЦИЯ'
 const buttonText = props.isLogin ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВАТЬСЯ'
 
+// WebSocket handler
 async function handleWebSocketRequest(data) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(WS_URL)
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify(data))
-    }
-
+    ws.onopen = () => ws.send(JSON.stringify(data))
+    
     ws.onmessage = (event) => {
-      const response = JSON.parse(event.data)
-      ws.close()
-      resolve(response)
+      try {
+        const response = JSON.parse(event.data)
+        ws.close()
+        resolve(response)
+      } catch (e) {
+        reject(e)
+      }
     }
 
     ws.onerror = (error) => {
@@ -59,30 +69,30 @@ async function handleWebSocketRequest(data) {
   })
 }
 
+// Submit handler
 async function submit() {
   try {
     if (props.isLogin) {
-      console.log(WS_URL)
-      // Логин: отправляем email и чистый пароль
+      // Login logic
       if (!email.value || !password.value) {
-        throw new Error('Заполнены не все поля')
+        throw new Error('Заполните все поля')
       }
 
       const response = await handleWebSocketRequest({
         action: 'login',
         email: email.value,
-        password: password.value // Отправляем исходный пароль
+        password: password.value
       })
 
-      if (response.success) {
+      if (response.status === 'success') {
         router.push('/home')
       } else {
-        alert(response.message || 'Ошибка аутентификации')
+        alert(response.message || 'Ошибка авторизации')
       }
     } else {
-      // Регистрация: хешируем пароль перед отправкой
+      // Registration logic
       if (!login.value || !email.value || !password.value || !password1.value) {
-        throw new Error('Не все поля заполнены')
+        throw new Error('Заполните все поля')
       }
 
       if (password.value !== password1.value) {
@@ -95,10 +105,10 @@ async function submit() {
         action: 'register',
         login: login.value,
         email: email.value,
-        password: hashedPassword // Отправляем соль:хеш
+        password: hashedPassword
       })
 
-      if (response.success) {
+      if (response.status === 'success') {
         router.push('/home')
       } else {
         alert(response.message || 'Ошибка регистрации')
@@ -109,8 +119,12 @@ async function submit() {
   }
 }
 
-// Функция хеширования для регистрации
+// Hash function
 async function hashPassword(password) {
+  if (!window.crypto?.subtle) {
+    throw new Error('Требуется безопасное соединение (HTTPS)')
+  }
+
   const salt = crypto.getRandomValues(new Uint8Array(16))
   const encoder = new TextEncoder()
   const passwordBuffer = encoder.encode(password)
@@ -135,10 +149,24 @@ async function hashPassword(password) {
   )
 
   const hashArray = new Uint8Array(derivedBits)
-  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('')
-  const hashHex = Array.from(hashArray).map(b => b.toString(16).padStart(2, '0')).join('')
+  const saltHex = Array.from(salt)
+    .map(b => b.toString(16).padStart(2, '0')).join('')
+  const hashHex = Array.from(hashArray)
+    .map(b => b.toString(16).padStart(2, '0')).join('')
+  
   return `${saltHex}:${hashHex}`
 }
 
-
 </script>
+<style>
+.container1 {
+  background-color: var(--bg-light);
+  padding: 2rem;
+  margin: 2rem auto;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+</style>
