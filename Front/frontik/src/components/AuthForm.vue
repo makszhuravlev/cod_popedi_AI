@@ -83,7 +83,7 @@ async function submit() {
             "Content-Type" : 'application/json;charset=utf-8',
             "Content-Length": data.length,
           },
-          data: data
+          body: data
       })
       console.log(JSON.stringify({
           email: email.value,
