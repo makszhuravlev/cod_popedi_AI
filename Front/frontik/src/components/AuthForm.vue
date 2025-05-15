@@ -80,7 +80,7 @@ async function submit() {
       const response = await fetch('http://88.84.211.248:8000/register', {
         method: 'POST',
         headers : {
-            "Content-Type" : "aplication/json",
+            "Content-Type" : 'application/json;charset=utf-8',
             "Content-Length": data.length,
           },
           data: data
