@@ -16,6 +16,8 @@
     </div>
 
     <button class="main-button" @click="generate('all')">Сгенерировать</button>
+    
+    <button class="exit-button" @click="exit()">Выйти</button>
 
     <p class="text-muted">
       Сгенерированные произведения являются художественными и могут содержать неточные или вымышленные элементы
@@ -25,6 +27,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+if (localStorage.getItem('access_token') == null){
+  router.push('/noauth')
+}
 
 const WS_URL = `ws:/88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}`
 const text = ref('')
@@ -57,6 +64,7 @@ async function handleWebSocketRequest(data) {
   })
 }
 async function generate(type) {
+  console.log(document.referrer)
   try {
       const response = await handleWebSocketRequest({
         action: type,
@@ -73,6 +81,10 @@ async function generate(type) {
       console.error('Ошибка:', error)
     }
   }
+async function exit() {
+  localStorage.clear();
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -104,5 +116,9 @@ textarea {
 .main-button {
   margin-top: 0.5rem;
   background-color: #3c2f1e;
+}
+.exit-button {
+  margin-top: 0.5rem;
+  background-color: #990000;
 }
 </style>

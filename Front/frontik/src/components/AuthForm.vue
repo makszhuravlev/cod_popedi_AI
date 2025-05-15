@@ -72,16 +72,24 @@ async function submit() {
       if (password.value !== password1.value) {
         throw new Error('Пароли не совпадают')
       }
-
-      const response = await fetch('http://88.84.211.248:8000/register', {
-        method: 'POST',
-        body: JSON.stringify({
+      const data = JSON.stringify({
           email: email.value,
           login: login.value,
           password: password.value
         })
+      const response = await fetch('http://88.84.211.248:8000/register', {
+        method: 'POST',
+        headers : {
+            "Content-Type" : "aplication/json",
+            "Content-Length": data.length,
+          },
+          data: data
       })
-      console.log(response)
+      console.log(JSON.stringify({
+          email: email.value,
+          login: login.value,
+          password: password.value
+        }))
       const result = await response.json()
       
       if (!response.ok) {
