@@ -25,7 +25,8 @@
 
 <script setup>
 import { ref } from 'vue'
-const WS_URL = 'ws://localhost:8000/ws'
+
+const WS_URL = `ws:/88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}`
 const text = ref('')
 async function handleWebSocketRequest(data) {
   return new Promise((resolve, reject) => {
@@ -45,6 +46,7 @@ async function handleWebSocketRequest(data) {
 
     ws.onerror = (error) => {
       ws.close()
+     
       reject(new Error('Ошибка соединения'))
     }
 

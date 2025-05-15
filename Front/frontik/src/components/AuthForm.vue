@@ -1,8 +1,8 @@
 <template>
   <div class="container1">
     <h1>{{ title }}</h1>
-    <input type="text" placeholder="Логин" v-if="!isLogin" v-e v-model="login" />
-    <input type="email" placeholder="Электронная почта" v-model="email" />
+    <input type="text" placeholder="Логин" v-e v-model="login" />
+    <input type="email" placeholder="Электронная почта" v-if="!isLogin" v-model="email" />
     <input type="password" placeholder="Пароль" v-model="password" />
     <input type="password" placeholder="Подтвердите пароль" v-if="!isLogin" v-model="password1" />
 
@@ -32,64 +32,39 @@ const password = ref('')
 const password1 = ref('')
 const login = ref('')
 
-// WebSocket
-const WS_URL = 'ws://localhost:8000/ws'
-
 // Helpers
 const title = props.isLogin ? 'ВОЙТИ' : 'РЕГИСТРАЦИЯ'
 const buttonText = props.isLogin ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВАТЬСЯ'
-
-// WebSocket handler
-async function handleWebSocketRequest(data) {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(WS_URL)
-
-    ws.onopen = () => ws.send(JSON.stringify(data))
-    
-    ws.onmessage = (event) => {
-      try {
-        const response = JSON.parse(event.data)
-        ws.close()
-        resolve(response)
-      } catch (e) {
-        reject(e)
-      }
-    }
-
-    ws.onerror = (error) => {
-      ws.close()
-      reject(new Error('Ошибка соединения'))
-    }
-
-    setTimeout(() => {
-      ws.close()
-      reject(new Error('Таймаут соединения'))
-    }, 5000)
-  })
-}
 
 // Submit handler
 async function submit() {
   try {
     if (props.isLogin) {
-      // Login logic
-      if (!email.value || !password.value) {
+      // === Авторизация ===
+      if (!login.value || !password.value) {
         throw new Error('Заполните все поля')
       }
 
-      const response = await handleWebSocketRequest({
-        action: 'login',
-        email: email.value,
-        password: password.value
+      const formData = new FormData()
+      formData.append('username', login.value)  // FastAPI OAuth2PasswordRequestForm
+      formData.append('password', password.value)
+
+      const response = await fetch('http://88.84.211.248:8000/token', {
+        method: 'POST',
+        body: formData
       })
 
-      if (response.status === 'success') {
-        router.push('/home')
-      } else {
-        alert(response.message || 'Ошибка авторизации')
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.detail || 'Ошибка авторизации')
       }
+
+      localStorage.setItem('access_token', result.access_token)
+      router.push('/home')
+
     } else {
-      // Registration logic
+      // === Регистрация ===
       if (!login.value || !email.value || !password.value || !password1.value) {
         throw new Error('Заполните все поля')
       }
@@ -98,64 +73,29 @@ async function submit() {
         throw new Error('Пароли не совпадают')
       }
 
-      const hashedPassword = await hashPassword(password.value)
-
-      const response = await handleWebSocketRequest({
-        action: 'register',
-        login: login.value,
-        email: email.value,
-        password: hashedPassword
+      const response = await fetch('http://88.84.211.248:8000/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: email.value,
+          login: login.value,
+          password: password.value
+        })
       })
-
-      if (response.status === 'success') {
-        alert('Успешная регистрация')
-        router.push('/login')
-      } else {
-        alert(response.message || 'Ошибка регистрации')
+      console.log(response)
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.detail || 'Ошибка регистрации')
       }
+
+      alert('Успешная регистрация')
+      router.push('/login')
     }
   } catch (error) {
     alert(error.message)
   }
 }
 
-// Hash function
-async function hashPassword(password) {
-  if (!window.crypto?.subtle) {
-    throw new Error('Требуется безопасное соединение (HTTPS)')
-  }
-
-  const salt = crypto.getRandomValues(new Uint8Array(16))
-  const encoder = new TextEncoder()
-  const passwordBuffer = encoder.encode(password)
-
-  const importedKey = await crypto.subtle.importKey(
-    'raw',
-    passwordBuffer,
-    { name: 'PBKDF2' },
-    false,
-    ['deriveBits']
-  )
-
-  const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      salt,
-      iterations: 600000,
-      hash: 'SHA-256'
-    },
-    importedKey,
-    256
-  )
-
-  const hashArray = new Uint8Array(derivedBits)
-  const saltHex = Array.from(salt)
-    .map(b => b.toString(16).padStart(2, '0')).join('')
-  const hashHex = Array.from(hashArray)
-    .map(b => b.toString(16).padStart(2, '0')).join('')
-  
-  return `${saltHex}:${hashHex}`
-}
 
 </script>
 <style>
