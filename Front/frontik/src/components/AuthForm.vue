@@ -1,7 +1,7 @@
 <template>
   <div class="container1">
     <h1>{{ title }}</h1>
-    <input type="text" placeholder="Логин" v-e v-model="login" />
+    <input type="text" placeholder="Логин" v-model="login" />
     <input type="email" placeholder="Электронная почта" v-if="!isLogin" v-model="email" />
     <input type="password" placeholder="Пароль" v-model="password" />
     <input type="password" placeholder="Подтвердите пароль" v-if="!isLogin" v-model="password1" />
