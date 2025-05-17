@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({ isLogin: Boolean })
@@ -31,7 +31,9 @@ const email = ref('')
 const password = ref('')
 const password1 = ref('')
 const login = ref('')
-
+onMounted(() => {
+  localStorage.clear()
+})
 // Helpers
 const title = props.isLogin ? 'ВХОД' : 'РЕГИСТРАЦИЯ'
 const buttonText = props.isLogin ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВАТЬСЯ'
