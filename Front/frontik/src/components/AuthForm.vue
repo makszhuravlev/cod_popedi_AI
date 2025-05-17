@@ -2,7 +2,8 @@
   <div class="container1">
     <h1>{{ title }}</h1>
     <input type="text" placeholder="Логин" v-model="login" />
-    <input type="email" placeholder="Электронная почта" v-if="!isLogin" v-model="email" />
+    <input type="email" pattern="/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/"
+    placeholder="Электронная почта" v-if="!isLogin" v-model="email" />
     <input type="password" placeholder="Пароль" v-model="password" />
     <input type="password" placeholder="Подтвердите пароль" v-if="!isLogin" v-model="password1" />
 
@@ -14,7 +15,6 @@
     </div>
     <div class="link-row1">
         <br><router-link class="reg" v-if="isLogin" to="/register">Зарегистрироваться</router-link>
-        <router-link class="reg" v-if="isLogin" to="/register">Забыли пароль?</router-link>
     </div>
   </div>
 </template>
@@ -33,7 +33,7 @@ const password1 = ref('')
 const login = ref('')
 
 // Helpers
-const title = props.isLogin ? 'ВОЙТИ' : 'РЕГИСТРАЦИЯ'
+const title = props.isLogin ? 'ВХОД' : 'РЕГИСТРАЦИЯ'
 const buttonText = props.isLogin ? 'ВОЙТИ' : 'ЗАРЕГИСТРИРОВАТЬСЯ'
 
 // Submit handler
@@ -114,6 +114,7 @@ async function submit() {
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
+  text-align: center;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
