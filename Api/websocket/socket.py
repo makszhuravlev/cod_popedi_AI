@@ -61,9 +61,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             "message": "Пустой список изображений"
                         })
                         return
-
-                    saved_urls = []
-
+                    
                     for image_b64 in images_b64:
                         filename = f"{uuid.uuid4().hex}.png"
                         filepath = IMAGES_DIR / filename
@@ -72,12 +70,10 @@ async def websocket_endpoint(websocket: WebSocket):
                             f.write(base64.b64decode(image_b64))
 
                         image_url = f"/static/images/{filename}"
-                        saved_urls.append(image_url)
 
-                    # ✅ Отправляем результат обратно через WebSocket
                     await websocket.send_json({
                         "status": "success",
-                        "image_urls": saved_urls
+                        "image_urls": image_url
                     })
                 elif action == "music":
                     await websocket.send_json({
