@@ -1,14 +1,11 @@
 <template>
-  <!-- Основной контейнер приложения -->
   <div class="container">
     <h1>Искусство через призму военных лет</h1>
     
-    <!-- Кнопка перехода к истории запросов -->
     <button class="main-button" @click="gotohistory()">
       История запросов
     </button>
     
-    <!-- Текстовое поле для ввода дневника -->
     <textarea
       id="description"
       rows="6"
@@ -16,47 +13,49 @@
       placeholder="Введите текст военного дневника..."
     ></textarea>
 
-    <!-- Группа кнопок для выбора типа генерации -->
     <div class="button-group">
       <button @click="generate('text')">Создать текст</button>
       <button @click="generate('image')">Создать картинку</button>
       <button @click="generate('music')">Создать музыку</button>
+      
     </div>
     
-    <!-- Основные действия -->
     <button class="main-button" @click="generate('all')">Сгенерировать</button>
     <button class="exit-button" @click="exit()">Выйти</button>
 
-    <!-- Информационное сообщение -->
     <p class="text-muted">
       Сгенерированные произведения являются художественными и могут содержать неточные или вымышленные элементы
     </p>
 
-    <!-- Модальное окно с результатами генерации -->
+    <!-- Окно загрузки -->
+    <div v-if="isLoading" class="modal-overlay">
+      <div class="modal-content loading-modal">
+        <h2>Обработка запроса</h2>
+        <p>Ваш запрос обрабатывается...</p>
+        <div class="loader"></div>
+      </div>
+    </div>
+
+    <!-- Окно результатов -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <h2>Результат генерации</h2>
         <div class="modal-body">
-          <!-- Динамическое отображение контента в зависимости от типа -->
           <div v-if="generatedContent">
-            <!-- Вывод текста -->
             <template v-if="resultType === 'text'">
               <p>{{ generatedContent.text }}</p>
             </template>
 
-            <!-- Вывод изображения -->
             <template v-else-if="resultType === 'image'">
               <img :src="generatedContent.image" alt="Сгенерированное изображение">
             </template>
 
-            <!-- Вывод аудио -->
             <template v-else-if="resultType === 'music'">
               <audio controls>
                 <source :src="generatedContent.music" type="audio/mpeg">
               </audio>
             </template>
 
-            <!-- Комбинированный вывод для типа 'all' -->
             <template v-else-if="resultType === 'all'">
               <div v-if="generatedContent.text">
                 <h3>Текст:</h3>
@@ -76,7 +75,6 @@
           </div>
         </div>
         
-        <!-- Футер модального окна -->
         <div class="modal-footer">
           <button class="close-button" @click="closeModal">Закрыть</button>
         </div>
@@ -91,38 +89,30 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Реактивные переменные состояния
-const text = ref('') // Текст из текстового поля
-const showModal = ref(false) // Видимость модального окна
-const resultType = ref('') // Тип результата генерации
-const generatedContent = ref(null) // Сгенерированный контент
-const WS_URL = `ws://88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}` // WebSocket URL
-let typeg = '' // Временная переменная для типа генерации
+const text = ref('')
+const showModal = ref(false)
+const isLoading = ref(false)
+const resultType = ref('')
+const generatedContent = ref(null)
+const WS_URL = `ws://88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}`
+let typeg = ''
 
-/**
- * Обработчик WebSocket соединения
- * @param {Object} data - Данные для отправки
- * @returns {Promise} - Обещание с результатом запроса
- */
 async function handleWebSocketRequest(data) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(WS_URL)
     let buffer = ''
     let isResolved = false
 
-    // Обработчики событий WebSocket
     ws.onopen = () => ws.send(JSON.stringify(data))
     
     ws.onmessage = async (event) => {
       try {
-        // Обработка входящих данных
         const chunk = event.data instanceof Blob 
           ? await event.data.text()
           : event.data
         
         buffer += chunk
 
-        // Проверка завершения передачи
         if (isCompleteResponse(buffer)) {
           isResolved = true
           try {
@@ -135,7 +125,6 @@ async function handleWebSocketRequest(data) {
           }
         }
         
-        // Обновление UI в реальном времени
         viewcontent(chunk, typeg)
       } catch (e) {
         ws.close(4000, 'Processing error')
@@ -163,11 +152,6 @@ async function handleWebSocketRequest(data) {
   })
 }
 
-/**
- * Проверка завершенности ответа
- * @param {string} buffer - Буфер данных
- * @returns {boolean} - Флаг завершения
- */
 function isCompleteResponse(buffer) {
   try {
     const data = JSON.parse(buffer)
@@ -177,23 +161,19 @@ function isCompleteResponse(buffer) {
   }
 }
 
-// Проверка аутентификации при монтировании
 onMounted(() => {
   if (!localStorage.getItem('access_token')) {
     router.push('/noauth')
   }
 })
 
-/**
- * Инициирует процесс генерации контента
- * @param {string} type - Тип генерации (text/image/music/all)
- */
 async function generate(type) {
   try {
     if (!text.value.trim()) {
       alert('Пожалуйста, введите текст для генерации')
       return
     }
+    isLoading.value = true
     typeg = type
     await handleWebSocketRequest({
       action: type,
@@ -202,47 +182,41 @@ async function generate(type) {
   } catch (error) {
     console.error('Ошибка генерации:', error)
     alert(`Ошибка: ${error.message}`)
+    isLoading.value = false
   }
 }
 
-/**
- * Обрабатывает и отображает полученный контент
- * @param {string} response - Ответ от сервера
- * @param {string} type - Тип контента
- */
 async function viewcontent(response, type) {
   if (response.includes('Welcome')) return
   
   try {
     const data = JSON.parse(response)
     if (data.status === 'success') {
-      // Формирование объекта контента
       const serverContent = {
         text: data.generated_text || "Текст не сгенерирован",
         image: `http://88.84.211.248:8000${data.image_urls}` || "",
         music: `http://88.84.211.248:8000${data.audio_url}` || ""
       }
 
-      // Обновление состояния в зависимости от типа
       generatedContent.value = type === 'all' 
         ? serverContent
         : { [type]: serverContent[type] }
 
       resultType.value = type
       showModal.value = true
+      isLoading.value = false
     }
   } catch (e) {
+    isLoading.value = false
     console.error('Ошибка обработки ответа:', e)
   }
 }
 
-// Закрытие модального окна
 function closeModal() {
   showModal.value = false
   generatedContent.value = null
 }
 
-// Навигация
 function gotohistory() {
   router.push('/history')
 }
@@ -254,42 +228,87 @@ function exit() {
 </script>
 
 <style scoped>
-/* Основные стили текстового поля */
+.container {
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  color: #3c2f1e;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
 textarea {
   width: 100%;
   height: 450px;
-  padding: 0.85rem 1rem;
   font-size: 1rem;
   font-family: 'Georgia', serif;
-  border: 2px solid var(--accent);
+  border: 2px solid #3c2f1e;
   border-radius: 8px;
   background-color: #fffef8;
-  color: var(--text-main);
+  color: #3c2f1e;
   transition: border-color 0.3s, box-shadow 0.3s;
   outline: none;
   resize: none;
 }
 
-/* Стили группы кнопок */
 .button-group {
   display: flex;
-  flex-wrap: wrap;
+  margin: -1rem 0;
+  width: 100%;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+
 }
 
 .button-group button {
-  flex: 1 1 calc(33.333% - 0.5rem);
+  flex: 2 1 calc(30% - 0.5rem);
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background-color: #5d4a36;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* Стили модального окна */
+button {
+
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-button {
+  margin: 0.5rem 0;
+  background-color: #3c2f1e;
+  width: 100%;
+}
+
+.exit-button {
+  background-color: #990000;
+  width: 100%;
+}
+
+.text-muted {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -306,7 +325,33 @@ textarea {
   position: relative;
 }
 
-/* Стили аудио-плеера */
+.loading-modal {
+  text-align: center;
+  padding: 2rem 3rem;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3c2f1e;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.modal-body img {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 5px;
+}
+
 audio {
   width: 100%;
   margin: 15px 0;
@@ -316,15 +361,13 @@ audio {
   box-shadow: 0 2px 4px rgba(60, 47, 30, 0.1);
 }
 
-/* Адаптация элементов управления аудио */
 audio::-webkit-media-controls-panel {
   background-color: #f5f1ea;
   border-radius: 8px;
 }
 
-/* Дополнительные стили для кнопок и текста */
-.main-button { background-color: #3c2f1e; margin-bottom: 1rem;}
-.exit-button { background-color: #990000; }
-.text-muted { color: #666; font-size: 0.8rem; }
-.close-button { background-color: #990000; }
+.close-button {
+  background-color: #990000;
+  margin-top: 1rem;
+}
 </style>
