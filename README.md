@@ -55,7 +55,7 @@ Cервис "Катюша" позволит вам оживить маленьк
 <!--Поддержка-->
 ## Команда Adeptus Altusches
 
-1. Александр Стпенцов - python backend develovper, teamlead
+1. Александр Стпенцов - Python backend develovper, teamlead
 2. Максим Журавлёв - VUE frontend develovper
 3. Дон Лаухин - Artificial Intelligence Engineer
 4. Владимир Кремер - Artificial Intelligence Engineer, Linux Engineer
