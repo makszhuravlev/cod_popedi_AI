@@ -257,7 +257,7 @@ textarea {
 
 .button-group {
   display: flex;
-  margin: -1rem 0;
+  margin: -1  rem 0;
   width: 100%;
   gap: 0.5rem;
 
