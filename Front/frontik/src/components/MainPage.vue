@@ -1,7 +1,10 @@
 <template>
   <div class="container">
     <h1>Искусство через призму военных лет</h1>
-
+    <button class="main-button" @click="gotohistory()" :disabled="isLoading">
+      История запросов
+    </button>
+    <h1>  </h1>
     <textarea
       id="description"
       rows="6"
@@ -106,7 +109,7 @@ async function generate(type) {
   const customContent = {
     text: "Деревня была где-то за лесом. Если идти в нее по большой дороге, нужно отмахать не один десяток километров; если пойти лесными тропинками, путь урежется вдвое. Толстые корни обхватили извилистую тропу. Лес шумит, успокаивает. В стылом воздухе кружатся жухлые листья. Тропинка, петляя среди деревьев, поднимается на пригорки, спускается в ложбинки, забираясь в чащобу осинника, выбегает на зарастающие ельником поляны, и кажется, что она так и не выведет тебя никуда.",
     image: "https://image.winudf.com/v2/image/bW9iaS5hbmRyb2FwcC5wcm9zcGVyaXR5YXBwcy5jNTExMV9zY3JlZW5fN18xNTI0MDQxMDUwXzAyMQ/screen-7.jpg?fakeurl=1&type=.jpg",
-    music: "https://example.com/your-music.mp3"
+    music: "http://kdg.htmlweb.ru/music/mark_bernes_-_zhuravli.mp3"
   }
 
   generatedContent.value = type === 'all' 
@@ -120,6 +123,9 @@ async function generate(type) {
 function closeModal() {
   showModal.value = false
   generatedContent.value = null
+}
+function gotohistory() {
+  router.push('/history')
 }
 
 function exit() {
