@@ -94,7 +94,7 @@ const showModal = ref(false)
 const isLoading = ref(false)
 const resultType = ref('')
 const generatedContent = ref(null)
-const WS_URL = `ws://88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}`
+const WS_URL = `ws://10.22.244.39:8000/ws?token=${localStorage.getItem('access_token')}`
 let typeg = ''
 
 async function handleWebSocketRequest(data) {
@@ -194,8 +194,8 @@ async function viewcontent(response, type) {
     if (data.status === 'success') {
       const serverContent = {
         text: data.generated_text || "Текст не сгенерирован",
-        image: `http://88.84.211.248:8000${data.image_urls}` || "",
-        music: `http://88.84.211.248:8000${data.audio_url}` || ""
+        image: `http://10.22.244.39:8000${data.image_urls}` || "",
+        music: `http://10.22.244.39:8000${data.audio_url}` || ""
       }
 
       generatedContent.value = type === 'all' 
