@@ -3,8 +3,8 @@ Cервис "Катюша" позволит вам оживить маленьк
 <!--Блок информации о репозитории в бейджах-->
 ![GitHub top language](https://img.shields.io/github/languages/top/makszhuravlev/cod_popedi_AI)
 
-
-![Logotype](./Front/frontik/public/logo1.png) лого ждем пока
+<img src="./Front/frontik/public/logo1.png" alt="Компьютер" width="500" height="300">
+![Logotype](./Front/frontik/public/logo1.png) 
 
 <!--Установка-->
 ## Установка (Linux)
