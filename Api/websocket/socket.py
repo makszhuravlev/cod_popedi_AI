@@ -2,6 +2,20 @@ import json
 from fastapi import WebSocket, WebSocketDisconnect
 from auth.utils import verify_token
 
+from fastapi import FastAPI, HTTPException
+from pathlib import Path
+import base64
+import uuid
+import httpx
+from fastapi.staticfiles import StaticFiles
+
+# Папка для хранения изображений
+IMAGES_DIR = Path("static/images")
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+# URL внешнего сервиса генерации изображений
+GENERATOR_URL = "https://ai.katuscha.ssrv.su/sdapi/v1/txt2img"
+
+
 async def websocket_endpoint(websocket: WebSocket):
     token = websocket.query_params.get("token")
     user = verify_token(token)
@@ -25,9 +39,41 @@ async def websocket_endpoint(websocket: WebSocket):
                         "message": "E"
                     })
                 elif action == "image":
+                    try:
+                        async with httpx.AsyncClient() as client:
+                            response = await client.post(
+                                GENERATOR_URL,
+                                json={"prompt": "puppy dog", "steps": 50}  # 👈 тут исправил на `json=...`, не `data=...`
+                            )
+                            response.raise_for_status()
+                    except Exception as e:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": f"Ошибка при запросе к генератору: {e}"
+                        })
+                        return
+
+                    data = response.json()
+                    images_b64 = data.get("images", [])
+                    if not images_b64:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": "Пустой список изображений"
+                        })
+                        return
+                    
+                    for image_b64 in images_b64:
+                        filename = f"{uuid.uuid4().hex}.png"
+                        filepath = IMAGES_DIR / filename
+
+                        with open(filepath, "wb") as f:
+                            f.write(base64.b64decode(image_b64))
+
+                        image_url = f"/static/images/{filename}"
+
                     await websocket.send_json({
                         "status": "success",
-                        "message": "E"
+                        "image_urls": image_url
                     })
                 elif action == "music":
                     await websocket.send_json({
