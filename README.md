@@ -1,5 +1,5 @@
 # Искусство через призму военных лет
-Cервис "Катюша" позволит вам оживить маленькие записи военных дневников пр помощи ИИ.<!-- описание репозитория -->
+Cервис "Катюша" позволит вам оживить маленькие записи военных дневников при помощи ИИ.<!-- описание репозитория -->
 <!--Блок информации о репозитории в бейджах-->
 ![GitHub top language](https://img.shields.io/github/languages/top/makszhuravlev/cod_popedi_AI)
 
@@ -36,7 +36,7 @@ Cервис "Катюша" позволит вам оживить маленьк
 
 1. Переход в директорию Api
 
-```cd Front/fronti```
+```cd Front/frontik```
 
 2. Установка зависимостей VUE
 
@@ -55,7 +55,7 @@ Cервис "Катюша" позволит вам оживить маленьк
 <!--Поддержка-->
 ## Команда Adeptus Altusches
 
-1. Александр Стпенцов - python backend develovper, teamlead
+1. Александр Стпенцов - Python backend develovper, teamlead
 2. Максим Журавлёв - VUE frontend develovper
 3. Дон Лаухин - Artificial Intelligence Engineer
 4. Владимир Кремер - Artificial Intelligence Engineer, Linux Engineer

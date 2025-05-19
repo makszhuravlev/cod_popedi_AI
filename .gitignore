@@ -1,0 +1,8 @@
+/Api/static
+/Api/venv
+/Api/websocket/__pycache__
+__pycache__
+*.pyc
+Api/auth/__pycache__/routes.cpython-313.pyc
+Api/websocket/__pycache__/socket.cpython-313.pyc
+
