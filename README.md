@@ -4,7 +4,7 @@ Cервис "Катюша" позволит вам оживить маленьк
 ![GitHub top language](https://img.shields.io/github/languages/top/makszhuravlev/cod_popedi_AI)
 
 
-![Logotype](./docs/wall.jpg) лого ждем пока
+![Logotype](./Front/frontik/public/logo1.png) лого ждем пока
 
 <!--Установка-->
 ## Установка (Linux)
