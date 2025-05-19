@@ -1,5 +1,5 @@
-<img src="./Front/frontik/public/logo1.png" alt="Компьютер" width="150" height="150">
-# Искусство через призму военных лет
+# Искусство через призму военных лет 
+
 Cервис "Катюша" позволит вам оживить маленькие записи военных дневников при помощи ИИ.<!-- описание репозитория -->
 <!--Блок информации о репозитории в бейджах-->
 ![GitHub top language](https://img.shields.io/github/languages/top/makszhuravlev/cod_popedi_AI)
