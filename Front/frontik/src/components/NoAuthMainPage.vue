@@ -38,7 +38,7 @@ textarea {
   height: 450px;
   padding: 0.85rem 1rem;
   font-size: 1rem;
-  font-family: 'Georgia', serif;
+  font-family: 'MetaDat';
   border: 2px solid var(--accent);
   border-radius: 8px;
   background-color: #fffef8;

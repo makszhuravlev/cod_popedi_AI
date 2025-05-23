@@ -4,10 +4,10 @@
     <h1>{{ title }}</h1>
 
     <!-- Поле ввода логина -->
-    <input type="text" placeholder="Логин" v-model="login" />
+    <input type="text" class="placeholder" placeholder="Логин" v-model="login" />
 
     <!-- Условное отображение поля email только для регистрации -->
-    <input 
+    <input class="placeholder"
       type="email"
       pattern="/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/"
       placeholder="Электронная почта"
@@ -16,8 +16,8 @@
     />
 
     <!-- Пароль и подтверждение пароля -->
-    <input type="password" placeholder="Пароль" v-model="password" />
-    <input 
+    <input type="password" class="placeholder" placeholder="Пароль" v-model="password" />
+    <input class="placeholder"
       type="password" 
       placeholder="Подтвердите пароль" 
       v-if="!isLogin" 
@@ -147,13 +147,19 @@ async function submit() {
 <style>
 /* Стили основного контейнера формы */
 .container1 {
+  font-family: 'MetaDat';
+  font-size: 1.3rem;
   background-color: var(--bg-light);
-  padding: 2rem;
+  padding: 1.2rem;
   margin: 2rem auto;
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
   text-align: center;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); /* Эффект тени */
+}
+.placeholder{
+  font-size: 1.2rem;
+  font-family: 'TT';
 }
 </style>

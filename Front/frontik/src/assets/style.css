@@ -6,7 +6,14 @@
   --text-main: #2d2118;
   --text-light: #fff8e1;
 }
-
+@font-face {
+    font-family: 'MetaDat';
+    src: url('Metadannye-Export.ttf') format('truetype'), /* IE6-IE8 */
+}
+@font-face {
+    font-family: 'TT';
+    src: url('TT Bricks Medium Italic.ttf') format('truetype'), /* IE6-IE8 */
+}
 * {
   box-sizing: border-box;
 }
@@ -14,7 +21,6 @@
 body {
   margin: 0;
   font-family: 'Georgia', serif;
-  background-color: var(--bg-dark);
   color: var(--text-main);
 }
 .page-wrapper {
@@ -22,8 +28,8 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 1rem;
-  background-color: var(--bg-dark);
+  background-image: url(./КатюшаФон.webp);
+  background-size: cover;
 }
 
 h1, h2, h3 {
@@ -52,10 +58,11 @@ input, textarea {
 }
 
 button {
+  font-family: 'MetaDat';
+  letter-spacing:normal;
   width: 100%;
-  padding: 0.9rem;
-  font-size: 1rem;
-  font-weight: bold;
+  padding: 0.5rem;
+  font-size: 1.2rem;
   border: none;
   border-radius: 8px;
   background-color: var(--accent);
@@ -83,6 +90,7 @@ button:hover {
 }
 .reg {
   display: flexbox; 
+  font-family: 'MetaDat';
   justify-content: space-between;
   font-size: 1.2rem;
 }
