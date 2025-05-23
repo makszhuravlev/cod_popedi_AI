@@ -1,8 +1,9 @@
 <template>
   <!-- Основной контейнер формы -->
   <div class="container1">
+    
+    <img class='mainlogo' height=180rem src="../../public/logo1.png">
     <h1>{{ title }}</h1>
-
     <!-- Поле ввода логина -->
     <input type="text" class="placeholder" placeholder="Логин" v-model="login" />
 
@@ -80,7 +81,7 @@ async function submit() {
       formData.append('password', password.value)
 
       // Отправка запроса на сервер
-      const response = await fetch('http://88.84.211.248:8000/token', {
+      const response = await fetch('http://10.22.244.39:8000/token', {
         method: 'POST',
         body: formData
       })
@@ -117,7 +118,7 @@ async function submit() {
       })
 
       // Отправка запроса на регистрацию
-      const response = await fetch('http://88.84.211.248:8000/register', {
+      const response = await fetch('http://10.22.244.39:8000/register', {
         method: 'POST',
         headers: {
           "Content-Type": 'application/json;charset=utf-8',
