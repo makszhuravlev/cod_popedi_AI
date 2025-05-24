@@ -1,13 +1,13 @@
 <template>
   <!-- Основной контейнер для сообщения о неавторизованном доступе -->
   <div class="container">
-    <h1>Вы попытались зайти без авторизации</h1>
+    <h1 style="font-family: 'MetaDat';letter-spacing:normal;  font-size: 2.5rem; font-weight: 100;">Вы попытались зайти без авторизации</h1>
 
     <!-- Кнопка выхода с обработчиком события -->
     <button class="exit-button" @click="exit()">Уйти отсюда</button>
 
     <!-- Информационное сообщение -->
-    <p class="text-muted">
+    <p style="font-family: 'MetaDat';letter-spacing:normal;  font-size: 1.5rem;" class="text-muted">
       Пожалуйста пройдите авторизацию
     </p>
   </div>
@@ -69,6 +69,6 @@ textarea {
 /* Стиль кнопки выхода */
 .exit-button {
   margin-top: 0.5rem;
-  background-color: #990000;
+  background-color: #ce191d;
 }
 </style>

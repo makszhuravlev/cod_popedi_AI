@@ -62,11 +62,12 @@ button {
   letter-spacing:normal;
   width: 100%;
   padding: 0.5rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   border: none;
   border-radius: 8px;
   background-color: var(--accent);
   color: white;
+  background-color: #ce191d;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -77,6 +78,7 @@ button:hover {
 
 .checkbox-label {
   display: flex;
+  color: #ce191d;
   align-items: center;
   gap: 8px;
   font-size: 0.9rem;
@@ -86,13 +88,13 @@ button:hover {
 .link-row {
   display: flexbox;
   justify-content: space-between;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 .reg {
   display: flexbox; 
   font-family: 'MetaDat';
   justify-content: space-between;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 a {
   color: var(--accent);

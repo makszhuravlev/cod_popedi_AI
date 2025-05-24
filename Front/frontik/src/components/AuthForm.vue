@@ -1,12 +1,11 @@
 <template>
   <!-- Основной контейнер формы -->
+  <img src="../assets/40коп.webp" alt="Описательный текст" style="position: absolute; top: 0; right: 0;">  
   <div class="container1">
-    
-    <img class='mainlogo' height=180rem src="../../public/logo1.png">
-    <h1>{{ title }}</h1>
+    <img class='mainlogo' height=180rem src="../../public/logo3.webp">
+    <h1 class="tittle">{{ title }}</h1>
     <!-- Поле ввода логина -->
-    <input type="text" class="placeholder" placeholder="Логин" v-model="login" />
-
+    <input type="text" class="placeholder" placeholder="Логин" v-model="login" /> 
     <!-- Условное отображение поля email только для регистрации -->
     <input class="placeholder"
       type="email"
@@ -31,12 +30,12 @@
     <!-- Ссылки для перехода между формами -->
     <div class="link-row">
       <!-- Ссылка на вход для зарегистрированных пользователей -->
-      <router-link v-if="!isLogin" to="/login"><br>Есть аккаунт?</router-link>
+      <router-link style="color: #ce191d;" v-if="!isLogin" to="/login"><br>Есть аккаунт?</router-link>
     </div>
     
     <div class="link-row1">
       <!-- Ссылка на регистрацию для новых пользователей -->
-      <br><router-link class="reg" v-if="isLogin" to="/register">Зарегистрироваться</router-link>
+      <br><router-link class="reg" style="color: #ce191d;"  v-if="isLogin" to="/register">Зарегистрироваться</router-link>
     </div>
   </div>
 </template>
@@ -81,7 +80,7 @@ async function submit() {
       formData.append('password', password.value)
 
       // Отправка запроса на сервер
-      const response = await fetch('http://10.22.244.39:8000/token', {
+      const response = await fetch('http://88.84.211.248:8000/token', {
         method: 'POST',
         body: formData
       })
@@ -118,7 +117,7 @@ async function submit() {
       })
 
       // Отправка запроса на регистрацию
-      const response = await fetch('http://10.22.244.39:8000/register', {
+      const response = await fetch('http://88.84.211.248:8000/register', {
         method: 'POST',
         headers: {
           "Content-Type": 'application/json;charset=utf-8',
@@ -150,16 +149,23 @@ async function submit() {
 .container1 {
   font-family: 'MetaDat';
   font-size: 1.3rem;
-  background-color: var(--bg-light);
+  background-color: #ebdfc2;
   padding: 1.2rem;
   margin: 2rem auto;
   border-radius: 12px;
   max-width: 500px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); /* Эффект тени */
+  
+}
+
+.tittle{
+  font-weight: 100;
+  color: #ce191d;
 }
 .placeholder{
+  background-color: #f6e5b0;
+  border-color: #ce191d;
   font-size: 1.2rem;
   font-family: 'TT';
 }

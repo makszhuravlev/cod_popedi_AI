@@ -35,7 +35,6 @@
         <div class="loader"></div>
       </div>
     </div>
-
     <!-- Окно результатов -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
@@ -74,13 +73,13 @@
             </template>
           </div>
         </div>
-        
         <div class="modal-footer">
           <button class="close-button" @click="closeModal">Закрыть</button>
         </div>
       </div>
     </div>
   </div>
+  
 </template>
 
 <script setup>
@@ -194,8 +193,8 @@ async function viewcontent(response, type) {
     if (data.status === 'success') {
       const serverContent = {
         text: data.generated_text || "Текст не сгенерирован",
-        image: `http://10.22.244.39:8000${data.image_urls}` || "",
-        music: `http://10.22.244.39:8000${data.audio_url}` || ""
+        image: `http://88.84.211.248:8000${data.image_urls}` || "",
+        music: `http://88.84.211.248:8000${data.audio_url}` || ""
       }
 
       generatedContent.value = type === 'all' 
@@ -228,12 +227,7 @@ function exit() {
 </script>
 
 <style scoped>
-.container {
-  align-items: center;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
+
 
 h1 {
   color: #3c2f1e;
