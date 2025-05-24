@@ -3,6 +3,7 @@
     <div class="page-container">
       <!-- Левая колонка: ввод текста, кнопки и дисклеймер -->
       <div class="left-panel">
+        <img class='mainlogo' src="../../public/logo3.webp">
         <h1>Искусство через призму военных лет</h1>
 
         <!-- Текстовое поле: занимает основное пространство -->
@@ -23,11 +24,7 @@
             <span class="checkbox-mark"></span>
             Озвучить текст
           </label>
-          <label class="custom-checkbox">
-            <input type="checkbox" v-model="musicOption" />
-            <span class="checkbox-mark"></span>
-            Сгенерировать музыку
-          </label>
+        
         </div>
 
         <!-- Дисклеймер -->
@@ -55,18 +52,7 @@
         />
 
         <!-- Если есть миниатюры, показываем их -->
-        <img
-          v-if="generatedThumbnail1"
-          :src="generatedThumbnail1"
-          class="content-image small-image"
-          alt="Thumbnail 1"
-        />
-        <img
-          v-if="generatedThumbnail2"
-          :src="generatedThumbnail2"
-          class="content-image small-image"
-          alt="Thumbnail 2"
-        />
+
 
         <!-- Если есть голос, показываем плеер -->
         <audio
@@ -171,8 +157,6 @@ async function onGenerateClick() {
 
   // Сброс старого контента
   generatedImageUrl.value = null
-  generatedThumbnail1.value = null
-  generatedThumbnail2.value = null
   generatedAudioUrl.value = null
   generatedMusicUrl.value = null
 
@@ -181,10 +165,6 @@ async function onGenerateClick() {
   const payload = {
     action: 'all',
     text: text.value,
-    width: imageWidth.value,
-    height: imageHeight.value,
-    voice: voiceOption.value,
-    music: musicOption.value
   }
 
   try {
@@ -194,8 +174,6 @@ async function onGenerateClick() {
     // Ожидаем, что parsed = { status: 'success', image_url, thumb1_url, thumb2_url, audio_url, music_url }
     if (parsed.status === 'success') {
       generatedImageUrl.value = parsed.image_url || null
-      generatedThumbnail1.value = parsed.thumb1_url || null
-      generatedThumbnail2.value = parsed.thumb2_url || null
       generatedAudioUrl.value = parsed.audio_url || null
       generatedMusicUrl.value = parsed.music_url || null
     } else {
@@ -297,7 +275,12 @@ html {
   flex-direction: column;
   min-height: 100vh;
 }
-
+.mainlogo{
+  height:30%;
+  width:30%;
+  text-align: center;
+  margin-left: auto; margin-right: auto;  
+}
 /* ============================================================================ 
    3. Основной контент: flex-ряд, панели равной ширины 
    ============================================================================ */
@@ -329,6 +312,7 @@ html {
 
 /* Отдельные рамки для наглядности */
 .left-panel {
+  padding-top: 1%;
   border: 2px solid #c0392b;
 }
 .right-panel {
@@ -449,6 +433,7 @@ html {
 /* 5.5 Дисклеймер */
 .disclaimer {
   flex: 0 0 auto;
+  font-weight: 1;
   font-family: 'MetaDat', sans-serif;
   background-color: #3c2f1e;
   color: #fff;
@@ -504,14 +489,14 @@ html {
 
 /* Размеры для «большого» placeholder */
 .right-panel .big-placeholder {
-  flex: 2 1 auto;
+  flex: 4 1 auto;
   min-height: 0;
   margin-bottom: 0.5rem;
 }
 
 /* Размеры для «малых» placeholder */
 .right-panel .small-placeholder {
-  flex: 1 1 auto;
+  flex: 0.5 1 auto;
   min-height: 0;
   margin-bottom: 0.5rem;
 }
@@ -576,6 +561,7 @@ html {
   z-index: 9999;
 }
 .modal-content {
+  place-items: center;
   background-color: #ffffff;
   border-radius: 8px;
   padding: 1.5rem;
@@ -586,11 +572,16 @@ html {
   z-index: 10000;
 }
 .loading-modal h2 {
+  font-weight: 100;
+  margin-left: auto; margin-right: auto;  
+  font-family: 'MetaDat';
   margin-top: 0;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #3c2f1e;
 }
 .loading-modal p {
+  font-weight: 100;
+  font-family: 'MetaDat';
   margin-bottom: 1rem;
   font-size: 1rem;
   color: #3c2f1e;
