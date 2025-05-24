@@ -1,74 +1,128 @@
 <template>
-  <div class="page-container">
-    <!-- Левая колонка: ввод текста, кнопки и дисклеймер -->
-    <div class="left-panel">
-      <h1>Искусство через призму военных лет</h1>
+  <div class="root-container">
+    <div class="page-container">
+      <!-- Левая колонка: ввод текста, кнопки и дисклеймер -->
+      <div class="left-panel">
+        <h1>Искусство через призму военных лет</h1>
 
-      <textarea
-        v-model="text"
-        placeholder="Сегодня наша армия отбивала Севастополь у немцев. Совсем скоро мы выгоним их из СССР."
-      ></textarea>
+        <!-- Текстовое поле: занимает основное пространство -->
+        <textarea
+          v-model="text"
+          placeholder="Сегодня наша армия отбивала Севастополь у немцев. Совсем скоро мы выгоним их из СССР."
+        ></textarea>
 
-      <!-- Большая кнопка «Сгенерировать» -->
-      <button class="generate-button" @click="onGenerateClick">
-        Сгенерировать
-      </button>
+        <!-- Кнопка «Сгенерировать» -->
+        <button class="generate-button" @click="onGenerateClick">
+          Сгенерировать
+        </button>
 
-      <!-- Чекбоксы под кнопкой -->
-      <div class="options-block">
-        <label class="custom-checkbox">
-          <input type="checkbox" v-model="voiceOption" />
-          <span class="checkbox-mark"></span>
-          Озвучить текст
-        </label>
-        <label class="custom-checkbox">
-          <input type="checkbox" v-model="musicOption" />
-          <span class="checkbox-mark"></span>
-          Сгенерировать музыку
-        </label>
+        <!-- Блок чекбоксов -->
+        <div class="options-block">
+          <label class="custom-checkbox">
+            <input type="checkbox" v-model="voiceOption" />
+            <span class="checkbox-mark"></span>
+            Озвучить текст
+          </label>
+          <label class="custom-checkbox">
+            <input type="checkbox" v-model="musicOption" />
+            <span class="checkbox-mark"></span>
+            Сгенерировать музыку
+          </label>
+        </div>
+
+        <!-- Дисклеймер -->
+        <div class="disclaimer">
+          Мы не несем ответственности за контент, генерируемый нейросетью. Вся ответственность
+          за создание противоправного и нежелательного контента лежит на пользователе. Adeptus
+          Altusiches оставляют за собой право передавать сведения о пользователе и его
+          генерациях правоохранительным органам.
+        </div>
+
+        <!-- Кнопка «Выйти» -->
+        <button class="exit-button" @click="exit">
+          Выйти
+        </button>
       </div>
 
-      <!-- Дисклеймер внизу -->
-      <div class="disclaimer">
-        Мы не несем ответственности за контент, генерируемый нейросетью. Вся ответственность
-        за создание противоправного и нежелательного контента лежит на пользователе. Adeptus
-        Altusiches оставляют за собой право передавать сведения о пользователе и его
-        генерациях правоохранительным органам.
+      <!-- Правая колонка: вывод сгенерированного контента -->
+      <div class="right-panel">
+        <!-- Если есть изображение, показываем <img> -->
+        <img
+          v-if="generatedImageUrl"
+          :src="generatedImageUrl"
+          class="content-image big-image"
+          alt="Generated"
+        />
+
+        <!-- Если есть миниатюры, показываем их -->
+        <img
+          v-if="generatedThumbnail1"
+          :src="generatedThumbnail1"
+          class="content-image small-image"
+          alt="Thumbnail 1"
+        />
+        <img
+          v-if="generatedThumbnail2"
+          :src="generatedThumbnail2"
+          class="content-image small-image"
+          alt="Thumbnail 2"
+        />
+
+        <!-- Если есть голос, показываем плеер -->
+        <audio
+          v-if="generatedAudioUrl"
+          :src="generatedAudioUrl"
+          class="audio-player"
+          controls
+        ></audio>
+
+        <!-- Если есть музыка, показываем плеер -->
+        <audio
+          v-if="generatedMusicUrl"
+          :src="generatedMusicUrl"
+          class="audio-player"
+          controls
+        ></audio>
+
+        <!-- Во всех остальных случаях (нет ни картинки, ни аудио) рисуем анимированный плейсхолдер -->
+        <div
+          v-if="!hasAnyContent"
+          class="placeholder big-placeholder"
+        ></div>
+        <div
+          v-if="!hasAnyContent"
+          class="placeholder small-placeholder"
+        ></div>
+        <div
+          v-if="!hasAnyContent"
+          class="placeholder small-placeholder"
+        ></div>
+
+        <!-- Кнопка «Медиатека генераций» -->
+        <button class="media-library-button" @click="goToMediaLibrary">
+          Медиатека генераций
+        </button>
       </div>
-      <button class="exit-button" @click="Exit">
-        Выйти
-      </button>
     </div>
 
-    <!-- Правая колонка: плейсхолдеры + настройки + медиатека -->
-    <div class="right-panel">
-      <!-- Три «пустых» прямоугольника до генерации -->
-      <div class="placeholder big-placeholder"></div>
-      <div class="placeholder small-placeholder"></div>
-      <div class="placeholder small-placeholder"></div>
-
-      <!-- Блок настроек со слайдерами -->
-      
-
-      <!-- Кнопка «Медиатека генераций» -->
-      <button class="media-library-button" @click="goToMediaLibrary">
-        Медиатека генераций
-      </button>
+    <!-- Оверлей загрузки -->
+    <div v-if="isLoading" class="modal-overlay">
+      <div class="modal-content loading-modal">
+        <h2>Обработка запроса</h2>
+        <p>Ваш запрос обрабатывается...</p>
+        <div class="loader"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- Оверлей загрузки (появляется после клика на «Сгенерировать») -->
-  <div v-if="isLoading" class="modal-overlay">
-    <div class="modal-content loading-modal">
-      <h2>Обработка запроса</h2>
-      <p>Ваш запрос обрабатывается...</p>
-      <div class="loader"></div>
-    </div>
+    <!-- Футер страницы -->
+    <footer class="page-footer">
+      © 2025 Adeptus Altusiches. Все права защищены.
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -80,50 +134,82 @@ const text = ref('')
 const voiceOption = ref(true)
 const musicOption = ref(false)
 
-// Ширина/высота для изображения (слайдеры)
+// Ширина/высота для изображения (запас на будущее)
 const imageWidth = ref(512)
 const imageHeight = ref(512)
 
 // Флаг загрузки, чтобы показать анимацию
 const isLoading = ref(false)
 
-// URL для WebSocket (предполагаем, что токен уже лежит в localStorage)
+// Переменные для хранения URL сгенерированного контента
+const generatedImageUrl = ref(null)
+const generatedThumbnail1 = ref(null)
+const generatedThumbnail2 = ref(null)
+const generatedAudioUrl = ref(null)
+const generatedMusicUrl = ref(null)
+
+// Флаг, чтобы понимать, существует ли хоть один вид контента
+const hasAnyContent = computed(() => {
+  return (
+    generatedImageUrl.value ||
+    generatedThumbnail1.value ||
+    generatedThumbnail2.value ||
+    generatedAudioUrl.value ||
+    generatedMusicUrl.value
+  )
+})
+
+// URL для WebSocket
 const WS_URL = `ws://88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}`
 
-// Запускаем генерацию при клике
+// Обработчик клика «Сгенерировать»
 async function onGenerateClick() {
   if (!text.value.trim()) {
     alert('Пожалуйста, введите текст для генерации')
     return
   }
 
+  // Сброс старого контента
+  generatedImageUrl.value = null
+  generatedThumbnail1.value = null
+  generatedThumbnail2.value = null
+  generatedAudioUrl.value = null
+  generatedMusicUrl.value = null
+
   isLoading.value = true
 
-  // Формируем payload (можно добавить дополнительные поля, например voiceOption, musicOption)
   const payload = {
     action: 'all',
-    text: '23',
-    width: imageWidth.value,  
+    text: text.value,
+    width: imageWidth.value,
     height: imageHeight.value,
     voice: voiceOption.value,
     music: musicOption.value
   }
 
   try {
-    await handleWebSocketRequest(payload)
-    // Когда придёт успешный ответ от сервера, здесь можно обработать его и вывести результат.
-    // Например, заменить плейсхолдеры реальным контентом.
-    // Но пока мы демонстрируем только предгенерационный вид,
-    // поэтому просто отключим анимацию загрузки.
-    isLoading.value = false
+    // Ждём ответа от WebSocket
+    const parsed = await handleWebSocketRequest(payload)
+
+    // Ожидаем, что parsed = { status: 'success', image_url, thumb1_url, thumb2_url, audio_url, music_url }
+    if (parsed.status === 'success') {
+      generatedImageUrl.value = parsed.image_url || null
+      generatedThumbnail1.value = parsed.thumb1_url || null
+      generatedThumbnail2.value = parsed.thumb2_url || null
+      generatedAudioUrl.value = parsed.audio_url || null
+      generatedMusicUrl.value = parsed.music_url || null
+    } else {
+      alert(parsed.error || 'Не удалось сгенерировать контент')
+    }
   } catch (e) {
     console.error('Ошибка генерации:', e)
     alert(`Ошибка: ${e.message}`)
+  } finally {
     isLoading.value = false
   }
 }
 
-// Простая обёртка для WebSocket-запроса
+// WebSocket-обёртка
 function handleWebSocketRequest(data) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(WS_URL)
@@ -136,21 +222,21 @@ function handleWebSocketRequest(data) {
 
     ws.onmessage = async (event) => {
       try {
-        const chunk = event.data instanceof Blob 
+        const chunk = event.data instanceof Blob
           ? await event.data.text()
           : event.data
         buffer += chunk
 
-        // Проверяем, можно ли распарсить полный JSON
         try {
           const parsed = JSON.parse(buffer)
+          // Ждём, пока status станет 'success' или 'error'
           if (parsed.status === 'success' || parsed.status === 'error') {
             isResolved = true
             ws.close()
             resolve(parsed)
           }
         } catch {
-          // JSON ещё не собран целиком – ждём следующего chunk’a
+          // JSON ещё не полностью пришёл
         }
       } catch (err) {
         ws.close()
@@ -167,7 +253,8 @@ function handleWebSocketRequest(data) {
 
     ws.onclose = (event) => {
       if (!isResolved) {
-        reject(new Error(`Connection closed: ${event.reason}`))
+        const reason = event.reason || 'без указания причины'
+        reject(new Error(`Connection closed: ${reason}`))
       }
     }
   })
@@ -177,7 +264,9 @@ function handleWebSocketRequest(data) {
 function goToMediaLibrary() {
   router.push('/history')
 }
-function Exit() {
+
+// Переход на экран логина
+function exit() {
   router.push('/login')
 }
 
@@ -190,50 +279,86 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@font-face {
-    font-family: 'MetaDat';
-    src: url('Metadannye-Export.ttf') format('truetype'), /* IE6-IE8 */
-}
-@font-face {
-    font-family: 'TT';
-    src: url('TT Bricks Medium Italic.ttf') format('truetype'), /* IE6-IE8 */
-}
-/* Общая обёртка: две колонки */
-.page-container {
-  max-width: 1800px;
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
+/* ============================================================================ 
+   1. Корневые единицы
+   ============================================================================ */
+html {
+  font-size: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-/* Левая колонка */
-.left-panel {
-  flex: 1;
+/* ============================================================================ 
+   2. Контейнер-обёртка: растягиваемся на весь экран 
+   ============================================================================ */
+.root-container {
   display: flex;
   flex-direction: column;
-  background-color: #f9f4e9;
-  border: 2px solid #c0392b;
-  border-radius: 8px;
-  padding: 1rem;
+  min-height: 100vh;
 }
 
-/* Заголовок */
+/* ============================================================================ 
+   3. Основной контент: flex-ряд, панели равной ширины 
+   ============================================================================ */
+.page-container {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #faf5ef;
+}
+
+/* ============================================================================ 
+   4. Левая и правая панели: растягиваются по ширине и высоте 
+   ============================================================================ */
+.left-panel,
+.right-panel {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background-color: #f9f4e9;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Отдельные рамки для наглядности */
+.left-panel {
+  border: 2px solid #c0392b;
+}
+.right-panel {
+  border: 2px solid #3c2f1e;
+}
+
+/* ============================================================================ 
+   5. Элементы левой панели 
+   ============================================================================ */
+
+/* 5.1 Заголовок */
 .left-panel h1 {
+  flex: 0 0 auto;
   font-family: 'MetaDat', sans-serif;
-  font-size: 3rem;
+  font-size: calc(1.5rem + 1vw);
   color: #c0392b;
   text-align: center;
   margin-bottom: 1rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Текстовое поле */
+/* 5.2 Текстовое поле */
 .left-panel textarea {
-  flex: 1;
+  flex: 1 1 auto;
   width: 100%;
-  min-height: 300px;
-  max-height: 400px;
   font-family: 'Georgia', serif;
-  font-size: 1.3rem;
+  font-size: calc(1.2rem + 0.2vw);
   border: 2px solid #c0392b;
   border-radius: 8px;
   background-color: #fffef8;
@@ -242,64 +367,49 @@ onMounted(() => {
   resize: vertical;
   outline: none;
   margin-bottom: 1rem;
+  box-sizing: border-box;
+  min-height: 120px;
+  max-height: 30vh;
+  overflow-y: auto;
 }
 
-/* Кнопка «Сгенерировать» */
+/* 5.3 Кнопка «Сгенерировать» */
 .generate-button {
-  margin-top: 1.5rem;
+  flex: 0 0 auto;
   background-color: #c0392b;
   color: #fff;
-  font-family: 'MetaDat', sans-serif; 
-  font-size: 2.3rem;
+  font-family: 'MetaDat', sans-serif;
+  font-size: calc(1rem + 0.5vw);
   border: none;
   border-radius: 8px;
   padding: 0.75rem;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-bottom: 1rem;
   width: 100%;
-}
-.exit-button {
-  margin-top: 1.5rem;
-  background-color: #c0392b;
-  color: #fff;
-  font-family: 'MetaDat', sans-serif; 
-  font-size: 2.3rem;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  box-sizing: border-box;
   margin-bottom: 1rem;
-  width: 100%;
-}
-.exit-button:hover {
-  background-color: #a8322a;
 }
 .generate-button:hover {
   background-color: #a8322a;
 }
 
-/* Блок чекбоксов */
+/* 5.4 Блок чекбоксов */
 .options-block {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
-
-/* Кастомный чекбокс */
 .custom-checkbox {
   position: relative;
   padding-left: 28px;
   cursor: pointer;
   user-select: none;
   font-family: 'TT', sans-serif;
-  font-size: 1.6rem;
+  font-size: calc(1rem + 0.2vw);
   color: #3c2f1e;
 }
-
-/* Скрываем стандартный input */
 .custom-checkbox input {
   position: absolute;
   opacity: 0;
@@ -307,8 +417,6 @@ onMounted(() => {
   height: 0;
   width: 0;
 }
-
-/* Квадратик/кружочек для чекбокса */
 .custom-checkbox .checkbox-mark {
   position: absolute;
   top: 0;
@@ -319,19 +427,14 @@ onMounted(() => {
   border-radius: 4px;
   background-color: #fff;
 }
-
-/* Галочка, которая появляется при checked */
 .custom-checkbox input:checked ~ .checkbox-mark {
   background-color: #c0392b;
 }
-
 .custom-checkbox .checkbox-mark::after {
   content: "";
   position: absolute;
   display: none;
 }
-
-/* Когда чекбокс отмечен – рисуем галочку */
 .custom-checkbox input:checked ~ .checkbox-mark::after {
   display: block;
   left: 5px;
@@ -343,176 +446,287 @@ onMounted(() => {
   transform: rotate(45deg);
 }
 
-/* Дисклеймер */
+/* 5.5 Дисклеймер */
 .disclaimer {
+  flex: 0 0 auto;
   font-family: 'MetaDat', sans-serif;
   background-color: #3c2f1e;
   color: #fff;
-  font-size: 1.8rem;
-  font-weight: 0rem;
-  letter-spacing:normal;
-  line-height: 1.2;
+  font-size: calc(1rem + 0.2vw);
+  line-height: 1.3;
   padding: 0.75rem;
   border-radius: 6px;
-  margin-top: auto;
+  margin-bottom: 1rem;
+  max-height: 15vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
-/* Правая колонка */
-.right-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background-color: #f9f4e9;
-  border: 2px solid #3c2f1e;
+/* 5.6 Кнопка «Выйти» */
+.exit-button {
+  flex: 0 0 auto;
+  background-color: #c0392b;
+  color: #fff;
+  font-family: 'MetaDat', sans-serif;
+  font-size: calc(1rem + 0.5vw);
+  border: none;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.exit-button:hover {
+  background-color: #a8322a;
 }
 
-/* Плейсхолдерные блоки */
-.placeholder {
-  border-radius: 8px;
-  background: linear-gradient(120deg, #030d14, #b1120d, #df9f00);
-  background-size: 300% 300%;
-  animation: placeholderGradient 3s ease infinite;
-}
+/* ============================================================================ 
+   6. Элементы правой панели 
+   ============================================================================ */
 
-.big-placeholder {
-  flex: 2;
-  min-height: 180px;
-}
-
-.small-placeholder {
-  flex: 1;
-  min-height: 80px;
-}
-
-/* Анимация градиента, чтобы было похоже на «ожидающий» эффект */
+/* Анимированный фон для плейсхолдеров */
 @keyframes placeholderGradient {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Блок настроек */
-.settings-block {
-  border: 2px solid #c0392b;
+.right-panel .placeholder {
   border-radius: 8px;
-  background-color: #fffef8;
-  padding: 0.75rem;
+  background: linear-gradient(120deg, #030d14, #b1120d, #df9f00);
+  background-size: 300% 300%;
+  animation: placeholderGradient 3s ease infinite;
+  flex-shrink: 0;
 }
 
-/* Заголовок настроек */
-.settings-header {
-  font-family: 'Changa One', sans-serif;
-  font-size: 1.1rem;
-  color: #c0392b;
-  margin-bottom: 0.75rem;
-}
-
-/* Ряд слайдера */
-.slider-row {
-  display: flex;
-  align-items: center;
+/* Размеры для «большого» placeholder */
+.right-panel .big-placeholder {
+  flex: 2 1 auto;
+  min-height: 0;
   margin-bottom: 0.5rem;
 }
 
-.slider-row label {
-  flex: 1;
-  font-family: 'Georgia', serif;
-  color: #3c2f1e;
+/* Размеры для «малых» placeholder */
+.right-panel .small-placeholder {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-bottom: 0.5rem;
 }
 
-.slider-row input[type="range"] {
-  flex: 3;
-  margin: 0 0.5rem;
+/* Картинка большого размера */
+.content-image.big-image {
+  flex: 2 1 auto;
+  width: 100%;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
 }
 
-.slider-value {
-  flex: 0.5;
-  text-align: right;
-  font-family: 'Georgia', serif;
-  color: #3c2f1e;
+/* Картинки-маленькие */
+.content-image.small-image {
+  flex: 1 1 auto;
+  width: 100%;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
 }
 
-/* Мелкая подсказка внизу блока настроек */
-.help-text {
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.5rem;
-  text-align: center;
+/* Стили для аудио-плеера */
+.audio-player {
+  flex: 0 0 auto;
+  width: 100%;
+  margin-bottom: 0.5rem;
 }
 
 /* Кнопка «Медиатека генераций» */
-.media-library-button {
+.right-panel .media-library-button {
+  flex: 0 0 auto;
   background-color: #3c2f1e;
   color: #fff;
   font-family: 'MetaDat', sans-serif;
-  font-size: 2em;
+  font-size: calc(1rem + 0.5vw);
   border: none;
   border-radius: 8px;
   padding: 0.75rem;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-top: auto;
   width: 100%;
+  box-sizing: border-box;
+  margin-top: auto;
+  flex-shrink: 0;
 }
-.media-library-button:hover {
+.right-panel .media-library-button:hover {
   background-color: #2a2318;
 }
 
-/* Оверлей загрузки */
+/* ============================================================================ 
+   7. Оверлей загрузки 
+   ============================================================================ */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
-
 .modal-content {
-  background-color: #fffef8;
-  padding: 2rem;
+  background-color: #ffffff;
   border-radius: 8px;
-  max-width: 80%;
-  max-height: 80vh;
-  text-align: center;
-  position: relative;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  z-index: 10000;
 }
-
 .loading-modal h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
   color: #3c2f1e;
 }
-
 .loading-modal p {
-  color: #666;
-  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #3c2f1e;
 }
-
 .loader {
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #3c2f1e;
+  border-top: 4px solid #c0392b;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   animation: spin 1s linear infinite;
-  margin: 20px auto;
+  margin: 0 auto;
 }
-
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Адаптивность: на узких экранах колонки «стекутся» */
+/* ============================================================================ 
+   8. Футер страницы (фиксируется внизу) 
+   ============================================================================ */
+.page-footer {
+  background-color: #3c2f1e;
+  color: #fff;
+  text-align: center;
+  padding: 1rem 0;
+  font-family: 'MetaDat', sans-serif;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* ============================================================================ 
+   9. Медиазапросы для адаптации под разные экраны 
+   ============================================================================ */
+
+/* При ширине экрана 1200px–901px */
+@media (max-width: 1200px) and (min-width: 901px) {
+  .page-container {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  .left-panel,
+  .right-panel {
+    padding: 0.75rem;
+  }
+  .left-panel h1 {
+    font-size: calc(1.4rem + 0.9vw);
+  }
+  .generate-button,
+  .exit-button,
+  .media-library-button {
+    font-size: calc(0.9rem + 0.4vw);
+  }
+}
+
+/* При ширине экрана 900px и ниже */
 @media (max-width: 900px) {
   .page-container {
     flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  .left-panel,
+  .right-panel {
+    flex: none;
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .left-panel h1 {
+    font-size: calc(1.3rem + 1.5vw);
+  }
+  .left-panel textarea {
+    max-height: 25vh;
+    font-size: calc(1rem + 0.5vw);
+  }
+  .generate-button,
+  .exit-button,
+  .media-library-button {
+    font-size: calc(0.9rem + 0.7vw);
+    padding: 0.5rem;
+  }
+  .disclaimer {
+    font-size: calc(0.9rem + 0.3vw);
+    max-height: 12vh;
+  }
+  .options-block .custom-checkbox {
+    font-size: calc(0.9rem + 0.3vw);
+  }
+  .content-image.big-image {
+    flex: none;
+    height: auto;
+  }
+  .content-image.small-image {
+    flex: none;
+    height: auto;
+  }
+  .media-library-button {
+    margin-top: 0.5rem;
+  }
+}
+
+/* При ширине экрана 600px и ниже */
+@media (max-width: 600px) {
+  .page-container {
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+  .left-panel,
+  .right-panel {
+    padding: 0.5rem;
+  }
+  .left-panel h1 {
+    font-size: calc(1.1rem + 1.8vw);
+  }
+  .left-panel textarea {
+    max-height: 20vh;
+    font-size: calc(0.9rem + 0.8vw);
+  }
+  .generate-button,
+  .exit-button,
+  .media-library-button {
+    font-size: calc(0.8rem + 1vw);
+    padding: 0.4rem;
+  }
+  .disclaimer {
+    font-size: calc(0.8rem + 0.4vw);
+    max-height: 10vh;
+  }
+  .options-block .custom-checkbox {
+    font-size: calc(0.8rem + 0.4vw);
+  }
+  .content-image.big-image,
+  .content-image.small-image {
+    width: 100%;
   }
 }
 </style>
