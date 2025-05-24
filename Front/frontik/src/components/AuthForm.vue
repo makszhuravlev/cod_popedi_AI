@@ -8,7 +8,7 @@
     <input type="text" class="placeholder" placeholder="Логин" v-model="login" /> 
     <!-- Условное отображение поля email только для регистрации -->
     <input class="placeholder"
-      type="email"
+      type="email"  
       pattern="/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/"
       placeholder="Электронная почта"
       v-if="!isLogin"
@@ -148,6 +148,7 @@ async function submit() {
 /* Стили основного контейнера формы */
 .container1 {
   font-family: 'MetaDat';
+  font-variant: normal;
   font-size: 1.3rem;
   background-color: #ebdfc2;
   padding: 1.2rem;
