@@ -3,14 +3,12 @@ from fastapi import WebSocket, WebSocketDisconnect
 from auth.utils import verify_token
 from database import get_db
 from models.user import User, Request, GeneratedFile
-from schemas.user import FileType
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 from pathlib import Path
 import base64
 import uuid
 import httpx
-from datetime import datetime
+from typing import Dict, List
 
 IMAGES_DIR = Path("static/images")
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
@@ -35,54 +33,104 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 message = json.loads(data)
                 action = message.get("action")
-                text_content = message.get("text")  # Текст теперь обязателен для всех действий
                 
-                if not text_content:
-                    await websocket.send_json({
-                        "status": "error",
-                        "message": "Текст сообщения обязателен"
-                    })
-                    continue
-                
-                user = db.query(User).filter(User.login == user_login).first()
-                if not user:
-                    await websocket.send_json({
-                        "status": "error",
-                        "message": "Пользователь не найден"
-                    })
-                    continue
-                
-                # Пытаемся найти существующую заявку с таким текстом
-                request = db.query(Request).filter(
-                    Request.user_id == user.id,
-                    Request.text == text_content
-                ).first()
-                
-                # Если заявки нет - создаем новую
-                if not request:
-                    try:
-                        request = Request(
-                            user_id=user.id,
-                            text=text_content,
-                            status="pending"
-                        )
-                        db.add(request)
-                        db.commit()
-                        db.refresh(request)
+                if action == "get_history":
+                    # Получаем все заявки пользователя
+                    user = db.query(User).filter(User.login == user_login).first()
+                    if not user:
                         await websocket.send_json({
-                            "status": "info",
-                            "message": "Создана новая заявка",
-                            "request_text": text_content
+                            "status": "error",
+                            "message": "User not found"
                         })
-                    except IntegrityError:
-                        db.rollback()
-                        request = db.query(Request).filter(
-                            Request.user_id == user.id,
-                            Request.text == text_content
-                        ).first()
+                        continue
+                    
+                    requests = db.query(Request).filter(
+                        Request.user_id == user.id
+                    ).order_by(Request.id.desc()).all()
+                    
+                    response = {"requests": []}
+                    
+                    for req in requests:
+                        files = db.query(GeneratedFile).filter(
+                            GeneratedFile.request_id == req.id
+                        ).all()
+                        
+                        request_data = {
+                            "id": req.id,
+                            "reference_text": req.text,
+                            "texts": [],
+                            "images": [],
+                            "music": [],
+                            "gifts": []
+                        }
+                        
+                        for file in files:
+                            if file.file_type == "text":
+                                request_data["texts"].append(file.file_url)
+                            elif file.file_type == "image":
+                                request_data["images"].append(file.file_url)
+                            elif file.file_type == "music":
+                                request_data["music"].append(file.file_url)
+                            elif file.file_type == "gift":
+                                request_data["gifts"].append(file.file_url)
+                        
+                        response["requests"].append(request_data)
+                    
+                    await websocket.send_json({
+                        "status": "success",
+                        "data": response
+                    })
                 
-                # Обработка разных типов действий
-                if action == "text":
+                elif action == "get_request":
+                    request_id = message.get("request_id")
+                    if not request_id:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": "Request ID is required"
+                        })
+                        continue
+                    
+                    request = db.query(Request).filter(
+                        Request.id == request_id,
+                        Request.user_id == db.query(User.id).filter(User.login == user_login).scalar_subquery()
+                    ).first()
+                    
+                    if not request:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": "Request not found"
+                        })
+                        continue
+                    
+                    files = db.query(GeneratedFile).filter(
+                        GeneratedFile.request_id == request.id
+                    ).all()
+                    
+                    request_data = {
+                        "id": request.id,
+                        "reference_text": request.text,
+                        "texts": [],
+                        "images": [],
+                        "music": [],
+                        "gifts": []
+                    }
+                    
+                    for file in files:
+                        if file.file_type == "text":
+                            request_data["texts"].append(file.file_url)
+                        elif file.file_type == "image":
+                            request_data["images"].append(file.file_url)
+                        elif file.file_type == "music":
+                            request_data["music"].append(file.file_url)
+                        elif file.file_type == "gift":
+                            request_data["gifts"].append(file.file_url)
+                    
+                    await websocket.send_json({
+                        "status": "success",
+                        "data": {"requests": [request_data]}
+                    })
+                
+                elif action == "text":
                     await websocket.send_json({
                         "status": "success",
                         "message": "Текст сохранен в заявке",

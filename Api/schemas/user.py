@@ -6,7 +6,7 @@ class FileType(str, Enum):
     image = "image"
     music = "music"
     text = "text"
-    other = "other"
+    gift = "gift"
 
 class RegisterForm(BaseModel):
     email: EmailStr
@@ -17,21 +17,13 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class RequestCreate(BaseModel):
-    text: str
-
 class RequestOut(BaseModel):
     id: int
-    user_id: int
-    text: str
-    status: str
+    reference_text: str
+    texts: List[str] = []
+    images: List[str] = []
+    music: List[str] = []
+    gifts: List[str] = []
 
-class GeneratedFileCreate(BaseModel):
-    file_url: str
-    file_type: FileType
-
-class GeneratedFileOut(BaseModel):
-    id: int
-    request_id: int
-    file_url: str
-    file_type: FileType
+class UserRequestsResponse(BaseModel):
+    requests: List[RequestOut]
