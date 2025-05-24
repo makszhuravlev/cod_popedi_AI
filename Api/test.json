@@ -1,0 +1,17 @@
+{"requests":[
+    {
+        "id":1,
+        "reference_text":"From text generations",
+        "texts":["text1","text2"],
+        "images":["url1","url2"],
+        "music":["url1","url2"], 
+        "gifts":["url1","url2"]},
+
+    {
+        "id":2,
+        "reference_text":"From text generations",
+        "texts":["text1","text2"],
+        "images":["url1","url2"],
+        "music":["url1","url2"], 
+        "gifts":["url1","url2"]}
+]}
