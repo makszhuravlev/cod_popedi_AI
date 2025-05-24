@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="30cab623-92f3-4655-8295-386f12ea2ade" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Api/auth/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/auth/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/models/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/schemas/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/websocket/socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/websocket/socket.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -12,22 +19,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "sashok112"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;sashok112&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/makszhuravlev/cod_popedi_AI.git",
-    "accountId": "e458f929-8fee-4c99-8f61-1e338caec141"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/makszhuravlev/cod_popedi_AI.git&quot;,
+    &quot;accountId&quot;: &quot;e458f929-8fee-4c99-8f61-1e338caec141&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 8
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2xEWIX0EMX2Br7StKYMFNu0KFSG" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -36,7 +43,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "BackendBlyat"
   }
 }]]></component>
   <component name="SharedIndexes">
