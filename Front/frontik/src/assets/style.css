@@ -73,7 +73,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--accent-dark);
+  background-color: #9c1012;
 }
 
 .checkbox-label {

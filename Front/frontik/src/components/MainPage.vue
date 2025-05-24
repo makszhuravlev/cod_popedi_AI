@@ -22,6 +22,16 @@
           <label class="custom-checkbox">
             <input type="checkbox" v-model="voiceOption" />
             <span class="checkbox-mark"></span>
+            Сгенерировать текст
+          </label>
+          <label class="custom-checkbox">
+            <input type="checkbox" v-model="voiceOption" />
+            <span class="checkbox-mark"></span>
+            Сгенерировать музыку
+          </label>
+          <label class="custom-checkbox">
+            <input type="checkbox" v-model="voiceOption" />
+            <span class="checkbox-mark"></span>
             Озвучить текст
           </label>
         
@@ -101,9 +111,9 @@
     </div>
 
     <!-- Футер страницы -->
-    <footer class="page-footer">
-      © 2025 Adeptus Altusiches. Все права защищены.
-    </footer>
+      <footer class="page-footer">
+        © 1945-2025 Катюша AI prod by Adeptus Altusiches. Все права защищены.
+      </footer>
   </div>
 </template>
 
@@ -266,7 +276,10 @@ html {
   margin: 0;
   padding: 0;
 }
-
+@font-face {
+    font-family: 'Rukopis';
+    src: url('../assets/snellroundhand_black.otf') format('opentype'), /* IE6-IE8 */
+}
 /* ============================================================================ 
    2. Контейнер-обёртка: растягиваемся на весь экран 
    ============================================================================ */
@@ -276,8 +289,9 @@ html {
   min-height: 100vh;
 }
 .mainlogo{
-  height:30%;
-  width:30%;
+  margin-top: -10%;
+  height:40%;
+  width:40%;  
   text-align: center;
   margin-left: auto; margin-right: auto;  
 }
@@ -304,7 +318,7 @@ html {
   display: flex;
   flex-direction: column;
   flex: 1;
-  background-color: #f9f4e9;
+  background-color: #d2c9b0;
   border-radius: 8px;
   padding: 1rem;
   overflow-y: auto;
@@ -312,11 +326,11 @@ html {
 
 /* Отдельные рамки для наглядности */
 .left-panel {
-  padding-top: 1%;
-  border: 2px solid #c0392b;
+  padding-top: 2%;
+  border: 1px solid #0a0a15;
 }
 .right-panel {
-  border: 2px solid #3c2f1e;
+  border: 1px solid #0a0a15;
 }
 
 /* ============================================================================ 
@@ -328,8 +342,9 @@ html {
   flex: 0 0 auto;
   font-family: 'MetaDat', sans-serif;
   font-size: calc(1.5rem + 1vw);
-  color: #c0392b;
+  color: #ce191d;
   text-align: center;
+  margin-top: -10%;
   margin-bottom: 1rem;
   line-height: 1.2;
   white-space: nowrap;
@@ -341,11 +356,11 @@ html {
 .left-panel textarea {
   flex: 1 1 auto;
   width: 100%;
-  font-family: 'Georgia', serif;
-  font-size: calc(1.2rem + 0.2vw);
-  border: 2px solid #c0392b;
+  font-family: 'Rukopis', serif;
+  font-size: calc(1.1rem + 0.2vw);
+  border: 2px solid #ce191d;
   border-radius: 8px;
-  background-color: #fffef8;
+  background-color: #fff6e1;  
   color: #3c2f1e;
   padding: 0.5rem;
   resize: vertical;
@@ -360,7 +375,7 @@ html {
 /* 5.3 Кнопка «Сгенерировать» */
 .generate-button {
   flex: 0 0 auto;
-  background-color: #c0392b;
+  background-color: #0a0a15;
   color: #fff;
   font-family: 'MetaDat', sans-serif;
   font-size: calc(1rem + 0.5vw);
@@ -407,12 +422,12 @@ html {
   left: 0;
   height: 20px;
   width: 20px;
-  border: 2px solid #c0392b;
+  border: 2px solid #ce191d;
   border-radius: 4px;
   background-color: #fff;
 }
 .custom-checkbox input:checked ~ .checkbox-mark {
-  background-color: #c0392b;
+  background-color: #ce191d;
 }
 .custom-checkbox .checkbox-mark::after {
   content: "";
@@ -433,15 +448,14 @@ html {
 /* 5.5 Дисклеймер */
 .disclaimer {
   flex: 0 0 auto;
-  font-weight: 1;
   font-family: 'MetaDat', sans-serif;
-  background-color: #3c2f1e;
+  background-color: #0a0a15;
   color: #fff;
   font-size: calc(1rem + 0.2vw);
   line-height: 1.3;
   padding: 0.75rem;
   border-radius: 6px;
-  margin-bottom: 1rem;
+  margin-bottom: 1rem;      
   max-height: 15vh;
   overflow-y: auto;
   box-sizing: border-box;
@@ -450,7 +464,7 @@ html {
 /* 5.6 Кнопка «Выйти» */
 .exit-button {
   flex: 0 0 auto;
-  background-color: #c0392b;
+  background-color: #ce191d;
   color: #fff;
   font-family: 'MetaDat', sans-serif;
   font-size: calc(1rem + 0.5vw);
@@ -527,7 +541,7 @@ html {
 /* Кнопка «Медиатека генераций» */
 .right-panel .media-library-button {
   flex: 0 0 auto;
-  background-color: #3c2f1e;
+  background-color: #0a0a15;
   color: #fff;
   font-family: 'MetaDat', sans-serif;
   font-size: calc(1rem + 0.5vw);
@@ -581,14 +595,14 @@ html {
 }
 .loading-modal p {
   font-weight: 100;
+  margin-left: 5%;
   font-family: 'MetaDat';
-  margin-bottom: 1rem;
   font-size: 1rem;
   color: #3c2f1e;
 }
 .loader {
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #c0392b;
+  border-top: 4px solid #ce191d;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -605,8 +619,8 @@ html {
    8. Футер страницы (фиксируется внизу) 
    ============================================================================ */
 .page-footer {
-  background-color: #3c2f1e;
-  color: #fff;
+  background-color: #0a0a15;
+  color: #ce191d ;
   text-align: center;
   padding: 1rem 0;
   font-family: 'MetaDat', sans-serif;

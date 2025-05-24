@@ -37,7 +37,9 @@
       <!-- Ссылка на регистрацию для новых пользователей -->
       <br><router-link class="reg" style="color: #ce191d;"  v-if="isLogin" to="/register">Зарегистрироваться</router-link>
     </div>
+    
   </div>
+  
 </template>
 
 <script setup>
@@ -163,6 +165,15 @@ async function submit() {
 .tittle{
   font-weight: 100;
   color: #ce191d;
+}
+.page-footer {
+  background-color: #0a0a15;
+  color: #ce191d ;
+  text-align: center;
+  padding: 1rem 0;
+  font-family: 'MetaDat', sans-serif;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 .placeholder{
   background-color: #f6e5b0;
