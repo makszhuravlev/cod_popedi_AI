@@ -11,12 +11,13 @@ class AiService:
 
     is_busy: bool = False
 
-    def __init__(self, model_name: str = "facebook/musicgen-stereo-small", model_dir: str = "/models/facebook/musicgen-stereo-small"):
+    def __init__(self, model_name: str = "facebook/musicgen-stereo-small", models_dir: str = "/models/"):
         self.__model_name = model_name
-        self.__model_dir = model_dir
+        self.__model_dir = models_dir+model_name
 
     def setup(self):
-        print(f"[AI] Use {self.__model_name} model")
+        print(f"[AI] Use \"{self.__model_name}\" model")
+        print(f"[AI] Path \"{self.__model_dir}\"")
 
         print("[AI] Loading AI Processor...")
         self.__processor = AutoProcessor.from_pretrained(self.__model_dir, local_files_only=True)
