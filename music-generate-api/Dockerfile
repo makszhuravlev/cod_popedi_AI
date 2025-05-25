@@ -11,7 +11,6 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./app /code/app
 
-WORKDIR /code/app
 RUN py app/setup_model.py  \
     --model "facebook/musicgen-stereo-small"  \
     --dir "./models/facebook/musicgen-stereo-small"  \

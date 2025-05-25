@@ -49,4 +49,4 @@ if args.enable_download:
     print("SAVE")
     sampling_rate = model.config.audio_encoder.sampling_rate
     audio_values = audio_values.cpu().numpy()
-    sf.write("./out/TEST_musicgen_out.mp3", audio_values[0].T, sampling_rate)
+    sf.write("../out/TEST_musicgen_out.mp3", audio_values[0].T, sampling_rate)

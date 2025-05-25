@@ -1,4 +1,9 @@
 .venv/
-app/models/
-*.safetensors
 .idea/
+
+__pycache__/
+
+models/
+out/
+
+*.safetensors
