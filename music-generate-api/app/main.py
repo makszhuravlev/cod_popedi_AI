@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
     print("[App] Shutting down...!")
 
 app = FastAPI(
-    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="0.2.0",
+    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="0.2.1",
     summary="Adeptus Altusches Team",
     lifespan=lifespan
 )
