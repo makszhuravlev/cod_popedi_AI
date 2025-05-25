@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import FastAPI, BackgroundTasks
 from contextlib import asynccontextmanager
+from concurrent.futures import ThreadPoolExecutor
 from starlette.responses import FileResponse, JSONResponse
 
 from .models import *
@@ -14,6 +15,7 @@ ai_service = AiService(model_name="facebook/musicgen-stereo-small", models_dir="
 
 results = {}
 queue = asyncio.Queue()
+executor = ThreadPoolExecutor(max_workers=1)
 
 # Обработка очереди
 async def queue_worker():
@@ -21,13 +23,24 @@ async def queue_worker():
         request_id, prompt = await queue.get()
         output_path = f"out/result_{request_id}.mp3"
 
+        if ai_service.is_busy:
+            return
+
         try:
             print(f"[Queue Worker {request_id}] Started generation...")
-            await ai_service.generate(prompt, output_path)
+
+            await asyncio.get_event_loop().run_in_executor(
+                executor,
+                ai_service.generate,
+                prompt, output_path
+            )
+
+            ai_service.generate(prompt, output_path=output_path)
             results[request_id] = output_path
             print(f"[Queue Worker {request_id}] Success generated!")
 
         except Exception as e:
+            ai_service.is_busy = False
             results[request_id] = None
             print(f"[Queue Worker {request_id}] Generation Error: {e}")
 
@@ -55,7 +68,7 @@ async def lifespan(app: FastAPI):
     print("[App] Shutting down...!")
 
 app = FastAPI(
-    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="1.0.0",
+    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="1.1.0",
     summary="Adeptus Altusches Team",
     lifespan=lifespan
 )

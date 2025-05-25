@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class GenerateRequest(BaseModel):
-    text: str
+    prompt: str
 
 class ErrorResponse(BaseModel):
     title: str
