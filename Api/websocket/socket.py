@@ -3,7 +3,6 @@ from fastapi import WebSocket, WebSocketDisconnect
 from auth.utils import verify_token
 from database import get_db
 from models.user import User, Request, GeneratedFile
-from schemas.user import FileType
 from sqlalchemy.orm import Session
 from pathlib import Path
 import base64
@@ -143,7 +142,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         async with httpx.AsyncClient() as client:
                             response = await client.post(
                                 GENERATOR_URL,
-                                json={"prompt": message.get('text'), "steps": 50}  # Используем текст как prompt
+                                json={"prompt": text_content, "steps": 50}  # Используем текст как prompt
                             )
                             response.raise_for_status()
                     except Exception as e:
@@ -174,6 +173,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         
                         # Сохраняем файл в заявку
                         new_file = GeneratedFile(
+                            request_id=request.id,
                             file_url=image_url,
                             file_type=FileType.image
                         )
@@ -185,7 +185,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         "status": "success",
                         "message": "Изображения сгенерированы и сохранены",
                         "image_url": image_url,
-                        "request_text": response.text
+                        "request_text": request.text
                     })
                 
                 elif action == "music":
