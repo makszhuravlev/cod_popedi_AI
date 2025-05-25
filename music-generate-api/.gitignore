@@ -1,0 +1,4 @@
+.venv/
+app/models/
+*.safetensors
+.idea/
