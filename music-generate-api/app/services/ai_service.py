@@ -27,7 +27,7 @@ class AiService:
 
         print("[AI] Ready!")
 
-    def generate(self, *prompt: str, context_size: int = 1024):
+    def generate(self, *prompt: str, output_path: str="/out/result.mp3", context_size: int = 1024):
         self.is_busy = True
 
         print("[AI] Setup Generation...")
@@ -43,7 +43,6 @@ class AiService:
         print("[AI] Saving...")
         sampling_rate = self.__model.config.audio_encoder.sampling_rate
         audio_values = audio_values.cpu().numpy()
-        sf.write("/out/result.mp3", audio_values[0].T, sampling_rate)
+        sf.write(output_path, audio_values[0].T, sampling_rate)
 
         self.is_busy = False
-

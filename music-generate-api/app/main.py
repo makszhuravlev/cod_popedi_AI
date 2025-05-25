@@ -1,8 +1,9 @@
 import os.path
-from contextlib import asynccontextmanager
-from http.client import responses
+import asyncio
+import uuid
 
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
+from contextlib import asynccontextmanager
 from starlette.responses import FileResponse, JSONResponse
 
 from .models import *
@@ -11,10 +12,42 @@ from .services.ai_service import AiService
 
 ai_service = AiService(model_name="facebook/musicgen-stereo-small", models_dir="./models/")
 
+results = {}
+queue = asyncio.Queue()
+
+# Обработка очереди
+async def queue_worker():
+    while True:
+        request_id, prompt = await queue.get()
+        output_path = f"out/result_{request_id}.mp3"
+
+        try:
+            print(f"[Queue Worker {request_id}] Started generation...")
+            await ai_service.generate(prompt, output_path)
+            results[request_id] = output_path
+            print(f"[Queue Worker {request_id}] Success generated!")
+
+        except Exception as e:
+            results[request_id] = None
+            print(f"[Queue Worker {request_id}] Generation Error: {e}")
+
+        queue.task_done()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("[App] Starting...")
+
+    print("[App] Check and Clear \"out\" folder...")
+    os.makedirs("out", exist_ok=True)
+    for file in os.listdir("out"):
+        os.remove(os.path.join("out", file))
+
+    print("[App] Run queue worker...")
+    asyncio.create_task(queue_worker())
+
+    print("[App] Setup ai service...")
     ai_service.setup()
+
     print("[App] Ready!")
 
     yield
@@ -22,7 +55,7 @@ async def lifespan(app: FastAPI):
     print("[App] Shutting down...!")
 
 app = FastAPI(
-    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="0.2.1",
+    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="1.0.0",
     summary="Adeptus Altusches Team",
     lifespan=lifespan
 )
@@ -31,21 +64,24 @@ app = FastAPI(
     201: {"content": {"audio/mp3": {}}},
     404: {"model": ErrorResponse}, 422: {"model": ErrorResponse}
 })
-async def generate(request: GenerateRequest):
+async def generate(request: GenerateRequest, background_tasks: BackgroundTasks):
     """
     Генерация небольшого аудио файла
     """
-    if ai_service.is_busy:
-        return JSONResponse(status_code=409, content={"title": "Ошибка очереди",
-                                                      "message": "Генератор занят, повторите попытку позже"})
 
-    ai_service.generate(request.text)
+    request_id = str(uuid.uuid4())
+    print(f"[Queue Worker {request_id}] Added to Queue")
+    await queue.put((request_id, request.prompt))
 
-    if not os.path.exists("../out/result.mp3"):
-        return JSONResponse(status_code=422, content={"title": "Ошибка генерации",
-                                                      "message": "Файл с результатом генерации не найден"})
+    while request_id not in results:
+        await asyncio.sleep(1)
 
-    return FileResponse(status_code=201, path='/out/result.mp3', filename='music.wav', media_type='')
+    output_path = results.pop(request_id)
+    if output_path and os.path.exists(output_path):
+        return FileResponse(output_path, status_code=201, media_type="audio/mpeg", filename="result.mp3")
+
+    return JSONResponse(status_code=422, content={"title": "Ошибка генерации",
+                                                  "message": "Файл с результатом генерации не найден"})
 
 @app.get("/", responses={404: {"model": ErrorResponse}})
 async def nope():
