@@ -133,11 +133,95 @@ async def websocket_endpoint(websocket: WebSocket):
                     })
                 
                 elif action == "text":
-                    try: 
+                    input_text = message.get("text")
+
+                    # Получаем пользователя
+                    user = db.query(User).filter(User.login == user_login).first()
+                    if not user:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": "Пользователь не найден"
+                        })
+                        continue
+
+                    # Проверяем, существует ли такая заявка у пользователя
+                    existing_request = db.query(Request).filter_by(user_id=user.id, text=input_text).first()
+
+                    if existing_request:
+                        request = existing_request
+                    else:
+                        request = Request(user_id=user.id, text=input_text)
+                        db.add(request)
+                        db.commit()
+                        db.refresh(request)
+
+                    current_request_id = request.id
+
+                    # Генерация текста
+                    try:
+                        raw_json = json.dumps({
+                            "model": "cnshenyang/qwen3-nothink:14b",
+                            "prompt": f"Я сейчас передам тебе текст введённый пользователем. Ты должен вывести стилистический текст в виде письма военнослужащего/военнослужащей. Соблюдай мораль и старайся соблюсти полную стилисту Великой Отечественной войны. Не пиши от лица немцев. Пиши от лица советских солдат. {input_text}",
+                            "stream": False
+                        })
+
+                        headers = {"Content-Type": "application/json"}
+
+                        async with httpx.AsyncClient() as client:
+                            response = await client.post(GENERATOR_TEXT_URL, content=raw_json, headers=headers, timeout=300)
+                            response.raise_for_status()
+                            data = response.json()
+                        
+                        # Сохраняем сгенерированный текст
+                        generated_text = data.get("response")
+                        file = GeneratedFile(
+                            request_id=request.id,
+                            file_url=generated_text,  # можно сохранять как текст в file_url, если нет URL
+                            file_type=FileType.text
+                        )
+                        db.add(file)
+                        db.commit()
+
+                        await websocket.send_json({
+                            "status": "success",
+                            "message": "Текст сгенерирован и сохранён в заявке",
+                            "request_text": generated_text
+                        })
+
+                    except Exception as e:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": f"Ошибка при генерации текста: {e}"
+                        })
+                        continue
+
+                elif action == "image":
+                    try:
+                        input_text = message.get("text")
+                        user = db.query(User).filter(User.login == user_login).first()
+                        if not user:
+                            await websocket.send_json({
+                                "status": "error",
+                                "message": "Пользователь не найден"
+                            })
+                            continue
+
+                        # Проверяем, существует ли такая заявка у пользователя
+                        existing_request = db.query(Request).filter_by(user_id=user.id, text=input_text).first()
+
+                        if existing_request:
+                            request = existing_request
+                        else:
+                            request = Request(user_id=user.id, text=input_text)
+                            db.add(request)
+                            db.commit()
+                            db.refresh(request)
+
+                        current_request_id = request.id
                         raw_json = '''
                         {
                         "model": "cnshenyang/qwen3-nothink:14b",
-                        "prompt": "Я сейчас передам тебе текст введённый пользователем. Ты должен вывести стилистический текст в виде письма военнослужащего/военнослужащей. Соблюдай мораль и старайся соблюсти полную стилисту Великой Отечественной войны. Не пиши от лица немцев. Пиши от лица советских солдат.'''+ message.get("text") +'''",
+                        "prompt": "Я сейчас передам тебе текст введённый пользователем. Ты должен вывести пропт для stable-diffusion для генерации изображения по тексту Не используй кавычки в своем ответе и другого текста не относящегося к промпту. Соблюдай мораль и старайся соблюсти полную стилисту Великой Отечественной войны. Не пиши от лица немцев. Пиши от лица советских солдат: '''+ message.get("text") +'''",
                         "stream": false
                         }
                         '''.strip()
@@ -155,25 +239,15 @@ async def websocket_endpoint(websocket: WebSocket):
                                 data = response.json()
                                 
                                 response.raise_for_status()
-                        await websocket.send_json({
-                            "status": "success",
-                            "message": "Текст сохранен в заявке",
-                            "request_text": data.get("response")
-                        })
-                    except Exception as e:
-                        print(e)
-                        await websocket.send_json({
-                            "status": "error",
-                            "message": f"Ошибка при генерации изображения: {e}"
-                        })
-                        continue
-
-                elif action == "image":
-                    try:
+                        prompt = data.get("response")
+                        print(prompt)
+                        
+                        
                         async with httpx.AsyncClient() as client:
                             response = await client.post(
                                 GENERATOR_IMG_URL,
-                                json={"prompt": message.get("text"), "steps": 50}  # Используем текст как prompt
+                                json={"prompt": prompt, "steps": 150},  # Используем текст как prompt
+                                timeout=30
                             )
                             response.raise_for_status()
                     except Exception as e:
@@ -204,6 +278,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         
                         # Сохраняем файл в заявку
                         new_file = GeneratedFile(  
+                            request_id=request.id,
                             file_url=image_url,
                             file_type=FileType.image
                         )
