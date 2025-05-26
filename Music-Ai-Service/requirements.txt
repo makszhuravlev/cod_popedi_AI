@@ -1,6 +1,0 @@
-fastapi[standart]~=0.115.12
-torch~=2.7.0
-soundfile~=0.13.1
-huggingface_hub[hf_xet]~=0.32.0
-tiktoken~=0.9.0
-protobuf~=6.31.0

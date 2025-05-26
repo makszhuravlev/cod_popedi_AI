@@ -1,0 +1,9 @@
+.venv/
+.idea/
+
+__pycache__/
+
+models/
+out/
+
+*.safetensors

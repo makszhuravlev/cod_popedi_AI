@@ -1,0 +1,16 @@
+services:
+  name: frontik
+  cumBack-API:
+    image: alt-front
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    volumes:
+      - .:/frontik
+    ports:
+      - 5173:5173
+    command: npm run dev
+
+volumes:
+  home:
