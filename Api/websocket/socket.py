@@ -294,9 +294,21 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 elif action == "music":
                     # Генерация музыки (заглушка)
-                    music_url = f"/static/music/{uuid.uuid4().hex}.mp3"
-                    
-                    # Сохраняем файл в заявку
+                    async with httpx.AsyncClient() as client:
+                        response = await client.post(
+                            GENERATOR_IMG_URL,
+                            json={"prompt": "Congratulations"},
+                            timeout=300
+                        )
+                        response.raise_for_status()
+
+                        # Просто сохраняем бинарный контент
+                        filename = f"{uuid.uuid4().hex}.mp3"
+                        with open(filename, "wb") as f:
+                            f.write(response.content)
+
+                        print(f"Аудиофайл сохранён как {filename}")
+
                     new_file = GeneratedFile(
                         request_id=request.id,
                         file_url=music_url,
