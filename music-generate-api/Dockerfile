@@ -9,19 +9,23 @@ COPY ./requirements.txt /code/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --upgrade git+https://github.com/huggingface/transformers.git scipy
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install fastapi[uvicorn] uvicorn
+
+RUN mkdir /code/models
+RUN mkdir /code/out
 
 COPY ./app /code/app
+COPY ./setup_model.py /code
 
 # Инициализация ИИ моделей
 # Выбрал musicgen-stereo-small т.к. она самая быстрая
-RUN py app/setup_model.py  \
+RUN python3 setup_model.py  \
     --model "facebook/musicgen-stereo-small"  \
     --dir "./models/facebook/musicgen-stereo-small"  \
-    --enable_download True  \
-    --enable_testing False
+    --enable-download True
 
 WORKDIR /code
 
 # ВОТ ТУТ ВАЖНО ЧТОБ БЫЛ 1 ВОРКЕР
 # Если конечно у вас не серверная AI видиокарта :D
-CMD ["fastapi", "run", "app/main.py", "--port", "80", "--workers", "1"]
+CMD ["uvicorn", "app.main:app", "--port", "3000", "--host", "0.0.0.0",  "--workers", "1"]

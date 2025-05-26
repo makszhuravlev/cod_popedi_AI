@@ -15,10 +15,10 @@ ai_service = AiService(model_name="facebook/musicgen-stereo-small", models_dir="
 
 results = {}
 queue = asyncio.Queue()
-executor = ThreadPoolExecutor(max_workers=1)
+loop = None
 
 # Обработка очереди
-async def queue_worker():
+async def queue_worker(loop, executor):
     while True:
         request_id, prompt = await queue.get()
         output_path = f"out/result_{request_id}.mp3"
@@ -29,13 +29,12 @@ async def queue_worker():
         try:
             print(f"[Queue Worker {request_id}] Started generation...")
 
-            await asyncio.get_event_loop().run_in_executor(
+            await loop.run_in_executor(
                 executor,
                 ai_service.generate,
                 prompt, output_path
             )
 
-            ai_service.generate(prompt, output_path=output_path)
             results[request_id] = output_path
             print(f"[Queue Worker {request_id}] Success generated!")
 
@@ -48,6 +47,7 @@ async def queue_worker():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global loop
     print("[App] Starting...")
 
     print("[App] Check and Clear \"out\" folder...")
@@ -56,7 +56,9 @@ async def lifespan(app: FastAPI):
         os.remove(os.path.join("out", file))
 
     print("[App] Run queue worker...")
-    asyncio.create_task(queue_worker())
+    executor = ThreadPoolExecutor(max_workers=1)
+    loop = asyncio.get_running_loop()
+    asyncio.create_task(queue_worker(loop, executor))
 
     print("[App] Setup ai service...")
     ai_service.setup()
@@ -68,7 +70,7 @@ async def lifespan(app: FastAPI):
     print("[App] Shutting down...!")
 
 app = FastAPI(
-    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="1.1.1",
+    title="Катюша, уроки музыки", description="Сервис \"Катюши\" по генерации музыки", version="1.2.0",
     summary="Adeptus Altusches Team",
     lifespan=lifespan
 )
