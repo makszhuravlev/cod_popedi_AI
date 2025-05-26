@@ -105,7 +105,7 @@ async function submit() {
 
             // Отправка запроса на сервер
             const response = await fetch(
-                "http://ai.katuscha.ssrv.su:8000/token",
+                "https://ai.katuscha.ssrv.su:8000/token",
                 {
                     method: "POST",
                     body: formData,
@@ -149,7 +149,7 @@ async function submit() {
 
             // Отправка запроса на регистрацию
             const response = await fetch(
-                "http://ai.katuscha.ssrv.su:8000/register",
+                "https://ai.katuscha.ssrv.su:8000/register",
                 {
                     method: "POST",
                     headers: {
