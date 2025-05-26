@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='Adeptus Altusches AI Loader')
 parser.add_argument('--model', action="store", dest='model_name', default="facebook/musicgen-stereo-small")
 parser.add_argument('--dir', action="store", dest='model_directory', default="./models/facebook/musicgen-stereo-small")
 parser.add_argument('--enable-download', action="store", dest='enable_download', default=True)
-parser.add_argument('--enable-testing', action="store", dest='enable_testing', default=True)
+parser.add_argument('--enable-testing', action="store", dest='enable_testing', default=False)
 args = parser.parse_args()
 
 MODEL_NAME = args.model_name
@@ -28,7 +28,7 @@ if args.enable_download:
     processor.save_pretrained(MODEL_DIR)
 
 
-if args.enable_download:
+if args.enable_testing:
     print("=== TESTING ===")
 
     print("LOAD PROCESSOR")

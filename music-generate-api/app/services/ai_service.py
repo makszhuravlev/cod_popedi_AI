@@ -6,8 +6,8 @@ class AiService:
     __model_name: str
     __model_dir: str
 
-    __processor: PreTrainedTokenizerFast | None = None
-    __model: SpecificPreTrainedModelType | None = None
+    __processor  = None
+    __model = None
 
     is_busy: bool = False
 
