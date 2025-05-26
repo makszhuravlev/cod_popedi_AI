@@ -149,7 +149,7 @@ const hasAnyContent = computed(() => {
 });
 
 // URL для WebSocket
-const WS_URL = `ws://10.0.8.15:8000/ws?token=${localStorage.getItem(
+const WS_URL = `ws://127.0.0.1:8000/ws?token=${localStorage.getItem(
     "access_token",
 )}`;
 
@@ -190,10 +190,10 @@ async function onGenerateClick() {
                 parsed.generated_text ||
                 "ыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыф";
             generatedImageUrl.value = parsed.image_url
-                ? "http://10.0.8.15:8000" + parsed.image_url
+                ? "http://127.0.0.1:8000" + parsed.image_url
                 : null;
             generatedMusicUrl.value =
-                parsed.music_url || `http://10.0.8.15:8000/static/images/1.mp3`;
+                parsed.music_url || `http://127.0.0.1:8000/static/images/1.mp3`;
         } else {
             alert(parsed.error || "Не удалось сгенерировать контент");
         }
