@@ -16,19 +16,19 @@ Cервис "Катюша" позволит вам оживить маленьк
 
 2. Собираем базу данных
 
-```docker run --name BDschka -v ../BD:/BDdata -e POSTGRES_PASSWORD=123 -d postgres:17.5-alpine3.21```
+```docker run --name BDschka -v $PWD/../BD:/BDdata -p 5432:5432 -e POSTGRES_PASSWORD=123 -d postgres:17.5-alpine3.21```
 
 3. Настраиваем базу данных
 
 ```
-docker exec -it BDschka psql -U postgres
+docker exec -it BDschka /bin/bash
 apk add sudo
 sudo -u postgres psql
 CREATE ROLE "Adept0mSimerol1S" WITH LOGIN PASSWORD 'AveImperium!';
 ALTER ROLE "Adept0mSimerol1S" WITH SUPERUSER;
+\q
 sudo -u postgres createdb cod_pobedi_ai
 sudo -u postgres psql -d cod_pobedi_ai -f /BDdata/dump_without_data.sql
-\q
 exit
 ```
 
