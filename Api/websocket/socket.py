@@ -13,7 +13,8 @@ from typing import Dict, List
 
 IMAGES_DIR = Path("static/images")
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-GENERATOR_URL = "https://ai.katuscha.ssrv.su/sdapi/v1/txt2img"
+GENERATOR_IMG_URL = "https://ai.katuscha.ssrv.su/sdapi/v1/txt2img"
+GENERATOR_TEXT_URL = "http://ai.katuscha.ssrv.su:11434/api/generate"
 
 async def websocket_endpoint(websocket: WebSocket):
     token = websocket.query_params.get("token")
@@ -132,17 +133,46 @@ async def websocket_endpoint(websocket: WebSocket):
                     })
                 
                 elif action == "text":
-                    await websocket.send_json({
-                        "status": "success",
-                        "message": "Текст сохранен в заявке",
-                        "request_text": request.text
-                    })
-                
+                    try: 
+                        raw_json = '''
+                        {
+                        "model": "cnshenyang/qwen3-nothink:14b",
+                        "prompt": "Я сейчас передам тебе текст введённый пользователем. Ты должен вывести стилистический текст в виде письма военнослужащего/военнослужащей. Соблюдай мораль и старайся соблюсти полную стилисту Великой Отечественной войны. Не пиши от лица немцев. Пиши от лица советских солдат.'''+ message.get("text") +'''",
+                        "stream": false
+                        }
+                        '''.strip()
+
+                        headers = {
+                            "Content-Type": "application/json"
+                        }
+                        async with httpx.AsyncClient() as client:
+                                response = await client.post(
+                                GENERATOR_TEXT_URL,
+                                content=raw_json,
+                                headers=headers,
+                                timeout=300
+                            )
+                                data = response.json()
+                                
+                                response.raise_for_status()
+                        await websocket.send_json({
+                            "status": "success",
+                            "message": "Текст сохранен в заявке",
+                            "request_text": data.get("response")
+                        })
+                    except Exception as e:
+                        print(e)
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": f"Ошибка при генерации изображения: {e}"
+                        })
+                        continue
+
                 elif action == "image":
                     try:
                         async with httpx.AsyncClient() as client:
                             response = await client.post(
-                                GENERATOR_URL,
+                                GENERATOR_IMG_URL,
                                 json={"prompt": message.get("text"), "steps": 50}  # Используем текст как prompt
                             )
                             response.raise_for_status()
