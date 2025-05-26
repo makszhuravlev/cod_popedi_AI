@@ -104,10 +104,13 @@ async function submit() {
             formData.append("password", password.value);
 
             // Отправка запроса на сервер
-            const response = await fetch("http://10.0.8.15:8000/token", {
-                method: "POST",
-                body: formData,
-            });
+            const response = await fetch(
+                "http://ai.katuscha.ssrv.su:8000/token",
+                {
+                    method: "POST",
+                    body: formData,
+                },
+            );
 
             // Обработка ответа сервера
             const result = await response.json();
@@ -145,14 +148,17 @@ async function submit() {
             });
 
             // Отправка запроса на регистрацию
-            const response = await fetch("http://10.0.8.15:8000/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json;charset=utf-8",
-                    "Content-Length": data.length,
+            const response = await fetch(
+                "http://ai.katuscha.ssrv.su:8000/register",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json;charset=utf-8",
+                        "Content-Length": data.length,
+                    },
+                    body: data,
                 },
-                body: data,
-            });
+            );
 
             // Обработка ответа сервера
             const result = await response.json();
