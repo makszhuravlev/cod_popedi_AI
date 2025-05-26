@@ -104,7 +104,7 @@ async function submit() {
             formData.append("password", password.value);
 
             // Отправка запроса на сервер
-            const response = await fetch("http://" + IP_BACK + ":8000/token", {
+            const response = await fetch("http://10.0.8.15:8000/token", {
                 method: "POST",
                 body: formData,
             });
@@ -145,17 +145,14 @@ async function submit() {
             });
 
             // Отправка запроса на регистрацию
-            const response = await fetch(
-                "http://" + IP_BACK + ":8000/register",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json;charset=utf-8",
-                        "Content-Length": data.length,
-                    },
-                    body: data,
+            const response = await fetch("http://10.0.8.15:8000/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json;charset=utf-8",
+                    "Content-Length": data.length,
                 },
-            );
+                body: data,
+            });
 
             // Обработка ответа сервера
             const result = await response.json();
