@@ -6,8 +6,8 @@ class AiService:
     __model_name: str
     __model_dir: str
 
-    __processor: PreTrainedTokenizerFast | None = None
-    __model: SpecificPreTrainedModelType | None = None
+    __processor  = None
+    __model = None
 
     is_busy: bool = False
 
@@ -27,12 +27,12 @@ class AiService:
 
         print("[AI] Ready!")
 
-    def generate(self, *prompt: str, output_path: str="/out/result.mp3", context_size: int = 1024):
+    def generate(self, prompt: str, output_path: str="out/result.mp3", context_size: int = 1024):
         self.is_busy = True
 
         print("[AI] Setup Generation...")
         inputs = self.__processor(
-            text=list(prompt),
+            text=[prompt],
             padding=True,
             return_tensors="pt",
         )
