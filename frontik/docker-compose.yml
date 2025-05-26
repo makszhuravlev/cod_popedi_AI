@@ -1,5 +1,5 @@
+name: frontik
 services:
-  name: frontik
   cumBack-API:
     image: alt-front
     build:
