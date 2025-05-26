@@ -67,6 +67,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { IP_BACK } from "@/config.js";
 
 // Получение пропса для определения типа формы
 const props = defineProps({ isLogin: Boolean });

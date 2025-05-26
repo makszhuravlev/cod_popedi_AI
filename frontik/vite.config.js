@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    allowedHosts: ["katuscha.ssrv.su", "localhost", "127.0.0.1", "10.0.8.15"],
+    allowedHosts: ["katuscha.ssrv.su", "10.0.8.15"],
   },
 });

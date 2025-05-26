@@ -121,6 +121,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { IP_BACK } from "@/config.js";
 
 const router = useRouter();
 
