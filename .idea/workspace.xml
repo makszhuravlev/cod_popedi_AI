@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30cab623-92f3-4655-8295-386f12ea2ade" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/schemas/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Api/websocket/socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/Api/websocket/socket.py" afterDir="false" />
-    </list>
+    <list default="true" id="30cab623-92f3-4655-8295-386f12ea2ade" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,6 +37,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "BackendBlyat"
   }
 }]]></component>

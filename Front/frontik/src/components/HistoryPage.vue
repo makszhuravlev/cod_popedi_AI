@@ -1,16 +1,20 @@
 <template>
   <button class="back-button" @click="goBack">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+         xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     Назад
   </button>
   
   <div class="history-container">
+    <!-- Если история ещё не загрузилась или пуста -->
     <div v-if="historyEntries.length === 0" class="empty-history">
       <p>Ваша история запросов пока пуста</p>
     </div>
 
+    <!-- Если есть записи, строим сетку карточек по горизонтали -->
     <div v-else class="history-scroll">
       <div 
         v-for="entry in historyEntries"
@@ -19,58 +23,52 @@
         @click="showEntry(entry)"
       >
         <div class="card-header">
-          <span class="type-badge" :class="entry.type">{{ getTypeLabel(entry.type) }}</span>
-          <span class="date">{{ formatDate(entry.date) }}</span>
+          <span class="id-badge">ID: {{ entry.id }}</span>
+          <span v-if="entry.date" class="date">{{ formatDate(entry.date) }}</span>
         </div>
-        <div class="preview-text">{{ truncateText(entry.text) }}</div>
+        <div class="preview-text">{{ truncateText(entry.reference_text) }}</div>
       </div>
     </div>
 
+    <!-- Модальное окно с деталями выбранной записи -->
     <div v-if="selectedEntry" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content large-modal">
-        <h2>Детали запроса от {{ formatDateTime(selectedEntry.date) }}</h2>
+        <h2>Детали запроса #{{ selectedEntry.id }} от {{ formatDateTime(selectedEntry.date) }}</h2>
         <div class="modal-body">
           <div class="section">
             <h3>Исходный текст:</h3>
-            <div class="original-text">{{ selectedEntry.text }}</div>
+            <div class="original-text">{{ selectedEntry.reference_text }}</div>
           </div>
 
-          <div class="generated-content">
-            <template v-if="selectedEntry.type === 'text'">
-              <h3>Сгенерированный текст:</h3>
-              <div class="text-content">{{ selectedEntry.content }}</div>
-            </template>
+          <!-- Блок для отображения картинок -->
+          <div v-if="selectedEntry.images && selectedEntry.images.length" class="section">
+            <h3>Изображения:</h3>
+            <div class="images-list">
+              <img
+                v-for="(imgSrc, idx) in selectedEntry.images"
+                :key="idx"
+                :src="imgSrc"
+                alt="Изображение"
+                class="generated-image"
+                @error="onImageError(imgSrc)"
+              />
+            </div>
+          </div>
 
-            <template v-else-if="selectedEntry.type === 'image'">
-              <h3>Изображение:</h3>
-              <img :src="selectedEntry.content" alt="Сгенерированное изображение" class="generated-image">
-            </template>
-
-            <template v-else-if="selectedEntry.type === 'music'">
-              <h3>Аудиозапись:</h3>
-              <audio controls class="audio-player">
-                <source :src="selectedEntry.content" type="audio/mpeg">
+          <!-- Блок для отображения аудио (песен) -->
+          <div v-if="selectedEntry.music && selectedEntry.music.length" class="section">
+            <h3>Аудиозаписи:</h3>
+            <div class="music-list">
+              <audio
+                v-for="(mSrc, idx) in selectedEntry.music"
+                :key="idx"
+                controls
+                class="audio-player"
+              >
+                <source :src="mSrc" type="audio/mpeg" />
+                Ваш браузер не поддерживает элемент <code>audio</code>.
               </audio>
-            </template>
-
-            <template v-else-if="selectedEntry.type === 'all'">
-              <div v-if="selectedEntry.content.text" class="content-section">
-                <h3>Текстовая часть:</h3>
-                <div class="text-content">{{ selectedEntry.content.text }}</div>
-              </div>
-              
-              <div v-if="selectedEntry.content.image" class="content-section">
-                <h3>Изображение:</h3>
-                <img :src="selectedEntry.content.image" alt="Изображение" class="generated-image">
-              </div>
-              
-              <div v-if="selectedEntry.content.music" class="content-section">
-                <h3>Музыкальная композиция:</h3>
-                <audio controls class="audio-player">
-                  <source :src="selectedEntry.content.music" type="audio/mpeg">
-                </audio>
-              </div>
-            </template>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -88,51 +86,84 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const selectedEntry = ref(null)
 
-const historyEntries = ref([
-  {
-    id: 1,
-    type: 'text',
-    text: 'Запрос пользователя',
-    content: 'Весенний ветер шелестит, Цветы распускаются, мир манит...',
-    date: new Date('2024-03-05T09:15:00')
-  },
-  {
-    id: 1,
-    type: 'text',
-    text: 'Запрос пользователя',
-    content: 'Весенний ветер шелестит, Цветы распускаются, мир манит...',
-    date: new Date('2024-03-05T09:15:00')
-  },
- 
-  
+// Массив карточек — каждая запись соответствует одному id из сервера
+const historyEntries = ref([])
 
-])
+// WebSocket-URL с токеном
+const WS_URL = `ws://88.84.211.248:8000/ws?token=${localStorage.getItem('access_token')}`
 
-const typeLabels = {
-  text: 'Текст',
-  image: 'Изображение',
-  music: 'Музыка',
-  all: 'Комплексный'
+// Базовый URL, добавляемый перед относительными путями к изображениям и аудио
+const BASE_URL = 'http://88.84.211.248:8000'
+
+// Универсальная функция для отправки JSON-запроса по WebSocket и ожидания полного ответа
+function handleWebSocketRequest(data) {
+  return new Promise((resolve, reject) => {
+    let buffer = ''
+    let isResolved = false
+    const ws = new WebSocket(WS_URL)
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify(data))
+    }
+
+    ws.onmessage = async (event) => {
+      if (isResolved) return
+
+      try {
+        const chunk = event.data instanceof Blob 
+          ? await event.data.text() 
+          : event.data
+        buffer += chunk
+
+        try {
+          const parsed = JSON.parse(chunk)
+          if (parsed.status === 'success' || parsed.status === 'error') {
+            isResolved = true
+            ws.close()
+            resolve(parsed)
+          }
+        } catch {
+          // JSON ещё неполный
+        }
+      } catch (err) {
+        if (!isResolved) {
+          isResolved = true
+          ws.close()
+          reject(err)
+        }
+      }
+    }
+
+    ws.onerror = (err) => {
+      if (!isResolved) {
+        isResolved = true
+        ws.close()
+        reject(new Error(`WebSocket error: ${err.message}`))
+      }
+    }
+
+    ws.onclose = (event) => {
+      if (!isResolved) {
+        isResolved = true
+        const reason = event.reason || 'без указания причины'
+        reject(new Error(`Соединение закрыто: ${reason}`))
+      }
+    }
+  })
 }
 
-onMounted(() => {
-  if (!localStorage.getItem('access_token')) router.push('/noauth')
-})
-
-function getTypeLabel(type) {
-  return typeLabels[type] || 'Неизвестный тип'
-}
-
+// Формат “дд.мм.гггг”
 function formatDate(date) {
-  return date.toLocaleDateString('ru-RU')
+  return date ? new Date(date).toLocaleDateString('ru-RU') : ''
 }
-
+// Формат “дд.мм.гггг, чч:мм:сс”
 function formatDateTime(date) {
-  return date.toLocaleString('ru-RU')
+  return date ? new Date(date).toLocaleString('ru-RU') : ''
 }
 
+// Обрезаем текст до заданной длины
 function truncateText(text, length = 100) {
-  return text.length > length ? text.substring(0, length) + '...' : text
+  return text && text.length > length ? text.substring(0, length) + '...' : text
 }
 
 function showEntry(entry) {
@@ -146,61 +177,65 @@ function closeModal() {
 function goBack() {
   router.push('/home')
 }
+
+// Обработчик ошибок загрузки изображений
+function onImageError(src) {
+  console.warn(`Не удалось загрузить изображение: ${src}`)
+}
+
+// При монтировании компонента — запрос истории
+onMounted(async () => {
+  if (!localStorage.getItem('access_token')) {
+    router.push('/noauth')
+    return
+  }
+
+  const payload = { action: 'get_history' }
+  try {
+    const parsed = await handleWebSocketRequest(payload)
+    if (parsed.status === 'success' && parsed.data && Array.isArray(parsed.data.requests)) {
+      const requests = parsed.data.requests
+
+      historyEntries.value = requests.map(req => {
+        // Приводим req.images к массиву строк
+        const imagesArray = Array.isArray(req.images)
+          ? req.images.filter(i => typeof i === 'string')
+          : []
+        const prefixedImages = imagesArray.map(img => {
+          return img.startsWith('http://') || img.startsWith('https://')
+            ? img
+            : `${BASE_URL}${img}`
+        })
+
+        // Приводим req.music к массиву строк
+        const musicArray = Array.isArray(req.music)
+          ? req.music.filter(m => typeof m === 'string')
+          : []
+        const prefixedMusic = musicArray.map(m => {
+          return m.startsWith('http://') || m.startsWith('https://')
+            ? m
+            : `${BASE_URL}${m}`
+        })
+
+        return {
+          id: req.id,
+          reference_text: req.reference_text || '',
+          date: req.date || '',
+          images: prefixedImages,
+          music: prefixedMusic
+        }
+      })
+      console.log('historyEntries after prefix:', historyEntries.value)
+    } else {
+      console.error('Не удалось получить историю или формат ответа неожиданный:', parsed)
+    }
+  } catch (err) {
+    console.error('Ошибка при запросе истории:', err)
+  }
+})
 </script>
 
 <style scoped>
-.history-container {
-  padding: 2rem;
-  position: relative;
-  min-height: 100vh;
-}
-
-.back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  background: none;
-  border: 2px solid #990000;
-  border-radius: 8px;
-  color: #990000;
-  cursor: pointer;
-  transition: all 0.3s;
-  z-index: 100;
-}
-
-.back-button:hover {
-  background-color: rgba(60, 47, 30, 0.1);
-}
-
-.history-scroll {
-  display: grid;
-  gap: 1.5rem;
-  padding: 2rem 0;
-  grid-template-columns: repeat(1, 1fr);
-}
-
-@media (min-width: 768px) {
-  .history-scroll {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .history-scroll {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.history-container {
-  padding: 2rem;
-  position: relative;
-  min-height: 100vh;
-  box-sizing: border-box;
-}
 
 .history-scroll {
   display: grid;
@@ -217,29 +252,83 @@ function goBack() {
   }
 }
 
+
+
+
+
+
+
+.history-container {
+  padding: 2rem;
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Кнопка «Назад» */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: none;
+  border: 2px solid #990000;
+  border-radius: 8px;
+  color: #990000;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 100;
+}
+.back-button:hover {
+  background-color: rgba(60, 47, 30, 0.1);
+}
+
+/* Контейнер карточек истории: отображается сеткой, несколько колонок, начиная слева сверху */
+.history-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  padding-top: 4rem;
+  box-sizing: border-box;
+}
+
+/* Каждая карточка занимает минимум 300px и автоматически расширяется до равномерной ширины */
 .history-card {
   background: #fff;
   border-radius: 8px;
   padding: 1.5rem;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid #e0e0e0;
-  min-height: 150px;
-  margin: 0 10px; /* Добавим небольшие отступы между карточками */
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.history-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
 }
 
-.type-badge.text { background: #e3f2fd; color: #1976d2; border-radius: 5px;}
-.type-badge.image { background: #f0f4c3; color: #827717;border-radius: 5px; }
-.type-badge.music { background: #f8bbd0; color: #c2185b; border-radius: 5px;}
-.type-badge.all { background: #dcedc8; color: #689f38; border-radius: 5px;}
+/* Шапка карточки: ID и дата */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.id-badge {
+  font-weight: bold;
+  color: #990000;
+}
 
 .date {
-  font-weight: bold;
-  color: #666;
   font-size: 0.9rem;
-  padding-left: 10%;
+  color: #666;
 }
 
+/* Превью текста */
 .preview-text {
   color: #444;
   line-height: 1.5;
@@ -249,6 +338,7 @@ function goBack() {
   -webkit-box-orient: vertical;
 }
 
+/* Пустая история */
 .empty-history {
   text-align: center;
   padding: 4rem;
@@ -256,6 +346,7 @@ function goBack() {
   font-size: 1.2rem;
 }
 
+/* Модальное окно */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -277,49 +368,55 @@ function goBack() {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  box-sizing: border-box;
 }
 
+/* Ограничиваем ширину модала */
 .large-modal {
   width: 90%;
-  max-width: 1000px;
+  max-width: 800px;
 }
 
-.generated-image {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-.audio-player {
-  width: 100%;
-  margin: 1rem 0;
-}
-
+/* Секции внутри модального окна */
 .section {
   margin-bottom: 2rem;
 }
 
+/* Исходный текст */
 .original-text {
   white-space: pre-wrap;
   background: #f5f5f5;
   padding: 1rem;
   border-radius: 8px;
-  margin: 1rem 0;
 }
 
-.text-content {
-  line-height: 1.6;
-  white-space: pre-wrap;
+/* Список картинок */
+.images-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.content-section {
-  margin: 2rem 0;
-  padding: 1rem;
-  background: #f8f8f8;
+/* Отображение одной картинки */
+.generated-image {
+  max-width: 200px;
   border-radius: 8px;
+  object-fit: cover;
 }
 
+/* Список аудиозаписей */
+.music-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Отображение одного аудио-плеера */
+.audio-player {
+  width: 100%;
+}
+
+/* Кнопка «Закрыть» в модальном окне */
 .close-button {
   padding: 0.8rem 1.5rem;
   background-color: #3c2f1e;
@@ -329,7 +426,6 @@ function goBack() {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 .close-button:hover {
   background-color: #2d2417;
 }
@@ -340,7 +436,8 @@ function goBack() {
   }
   
   .history-scroll {
-    padding: 1rem 0;
+    padding-top: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
   
   .back-button {
