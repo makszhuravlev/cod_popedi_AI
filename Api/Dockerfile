@@ -1,4 +1,4 @@
-FROM python:3.13 
+FROM python:3.12
 
 #RUN python3 -m pip install venv
 COPY requirements.txt requirements.txt
