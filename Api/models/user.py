@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Index
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -29,7 +30,7 @@ class GeneratedFile(Base):
     __tablename__ = "generated_files"
     id = Column(Integer, primary_key=True, index=True)
     request_id = Column(Integer, ForeignKey("requests.id"))
-    file_url = Column(String(500), nullable=False)
+    file_url = Column(LONGTEXT, nullable=False)
     file_type = Column(Enum('image', 'music', 'text', 'gift', name="file_type_enum"), nullable=False)
     
     request = relationship("Request", back_populates="files")
