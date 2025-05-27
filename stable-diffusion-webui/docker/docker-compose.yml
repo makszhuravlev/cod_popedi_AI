@@ -1,0 +1,19 @@
+name: AI-image
+services:
+  stable-diffusion-webui:
+    runtime: nvidia
+    image: emsi/stable-diffusion-webui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7860"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ..:/stable-diffusion-webui
+      - home:/root
+    command: bash webui.sh -f --listen --api
+
+volumes:
+  home:
