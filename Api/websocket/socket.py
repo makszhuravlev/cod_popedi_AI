@@ -296,28 +296,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     })
                 
                 elif action == "music":
-<<<<<<< HEAD
-                    MUSIC_PLACEHOLDER_URLS = [
-                        "/static/images/1.mp3",
-                        "/static/images/2.mp3",
-                        "/static/images/3.mp3",
-                        "/static/images/4.mp3",
-                        "/static/images/5.mp3",
-                        "/static/images/6.mp3",
-                        "/static/images/7.mp3",
-                    ]
-                    # # Генерация музыки (заглушка)
-                    # music_url = f"/static/music/{uuid.uuid4().hex}.mp3"
-                    
-                    # # Сохраняем файл в заявку
-                    # new_file = GeneratedFile(
-                    #     request_id=request.id,
-                    #     file_url=music_url,
-                    #     file_type=FileType.music
-                    # )
-                    # db.add(new_file)
-                    # db.commit()
-=======
+
                     # Генерация музыки (заглушка)
                     async with httpx.AsyncClient() as client:
                         response = await client.post(
@@ -341,7 +320,6 @@ async def websocket_endpoint(websocket: WebSocket):
                     )
                     db.add(new_file)
                     db.commit()
->>>>>>> 7f9b4d86cccf8607eaa572927ce74f86a6ba43c0
                     
                     # await websocket.send_json({
                     #     "status": "success",
