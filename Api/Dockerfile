@@ -10,4 +10,4 @@ RUN python3 -m pip install --upgrade pip && python3 -m pip install fastapi && py
 WORKDIR "/api/"
 #CMD ["python3", "main.py", "--help"]
 #CMD ["/bin/bash"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["env/bin/uvicorn", "main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
