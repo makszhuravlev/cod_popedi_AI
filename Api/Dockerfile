@@ -1,8 +1,6 @@
 FROM python:3.12
 
-#RUN python3 -m pip install venv
 COPY requirements.txt requirements.txt
-RUN ls -la && sleep 5
 
 #RUN python3 -m venv venv
 #ENV VIRTUAL_ENV=/venv

@@ -149,7 +149,7 @@ const hasAnyContent = computed(() => {
 });
 
 // URL для WebSocket
-const WS_URL = `ws://katuscha.ssrv.su:8443/ws?token=${localStorage.getItem(
+const WS_URL = `wss://katuscha.ssrv.su:8443/ws?token=${localStorage.getItem(
     "access_token",
 )}`;
 
@@ -200,7 +200,7 @@ async function onGenerateClick() {
 
             if (parsed3.status === "success") {
                 generatedMusicUrl.value =
-                    "http://katuscha.ssrv.su:8443" + parsed3.music_url || null;
+                    "https://katuscha.ssrv.su:8443" + parsed3.music_url || null;
             }
             if (parsed3.status === "error") {
                 alert(parsed3.error || "Не удалось сгенерировать музыку");
@@ -210,7 +210,7 @@ async function onGenerateClick() {
         }
         if (parsed1.status === "success") {
             generatedImageUrl.value = parsed1.image_url
-                ? "http://katuscha.ssrv.su:8443" + parsed1.image_url
+                ? "https://katuscha.ssrv.su:8443" + parsed1.image_url
                 : null;
         } else {
             alert(parsed1.error || "Не удалось сгенерировать контент");
