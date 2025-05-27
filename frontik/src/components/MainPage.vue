@@ -61,20 +61,20 @@
                 <template v-else>
                     <!-- Изображение -->
                     <img
-                        v-if="generatedImageUrl"
+                        v-if="generatedImageUrl != null"
                         :src="generatedImageUrl"
                         class="content-image big-image"
                         alt="Generated"
                     />
 
                     <!-- Текст (теперь растёт по высоте) -->
-                    <div v-if="generatedText" class="generated-text">
+                    <div v-if="generatedText != null" class="generated-text">
                         {{ generatedText }}
                     </div>
 
                     <!-- Музыка -->
                     <audio
-                        v-if="generatedMusicUrl"
+                        v-if="generatedMusicUrl != null"
                         :src="generatedMusicUrl"
                         class="audio-player"
                         controls
@@ -129,7 +129,7 @@ const text = ref("");
 
 // Флаги чекбоксов
 const musicOption = ref(false);
-const textOption = ref(true);
+const textOption = ref(false);
 
 // Флаг загрузки, чтобы показать анимацию и заблокировать кнопку
 const isLoading = ref(false);
@@ -149,7 +149,7 @@ const hasAnyContent = computed(() => {
 });
 
 // URL для WebSocket
-const WS_URL = `ws://katuscha.ssrv.su:8080/ws?token=${localStorage.getItem(
+const WS_URL = `ws://katuscha.ssrv.su:8443/ws?token=${localStorage.getItem(
     "access_token",
 )}`;
 
@@ -170,33 +170,50 @@ async function onGenerateClick() {
 
     // Формируем полезную нагрузку.
     // Передаём информацию о том, что именно генерить (текст, картинку, музыку).
-    const payload = {
+    const payload1 = {
         action: "image",
         text: text.value,
-        options: {
-            withText: textOption.value,
-            withMusic: musicOption.value,
-            withImage: true,
-        },
+    };
+    const payload2 = {
+        action: "text",
+        text: text.value,
+    };
+    const payload3 = {
+        action: "music",
+        text: text.value,
     };
 
     try {
         // Ждём ответа от WebSocket
-        const parsed = await handleWebSocketRequest(payload);
+        const parsed1 = await handleWebSocketRequest(payload1);
+        if (textOption.value) {
+            let parsed2 = await handleWebSocketRequest(payload2);
+            console.log(parsed2.status === "error");
+            if (parsed2.status === "succes") {
+                generatedText.value = parsed2.request_text || null;
+            } else {
+                alert(parsed2.error || "Не удалось сгенерировать текст");
+            }
+        }
+        if (musicOption.value) {
+            const parsed3 = await handleWebSocketRequest(payload3);
 
-        if (parsed.status === "success") {
-            // Распаковываем то, что пришло
-            generatedText.value =
-                parsed.generated_text ||
-                "ыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыф";
-            generatedImageUrl.value = parsed.image_url
-                ? "https://katuscha.ssrv.su:8080" + parsed.image_url
+            if (parsed3.status === "success") {
+                generatedMusicUrl.value =
+                    "http://katuscha.ssrv.su:8443" + parsed3.music_url || null;
+            }
+            if (parsed3.status === "error") {
+                alert(parsed3.error || "Не удалось сгенерировать музыку");
+            } else {
+                alert(parsed3.error || "Не удалось сгенерировать музыку");
+            }
+        }
+        if (parsed1.status === "success") {
+            generatedImageUrl.value = parsed1.image_url
+                ? "http://katuscha.ssrv.su:8443" + parsed1.image_url
                 : null;
-            generatedMusicUrl.value =
-                parsed.music_url ||
-                `https://katuscha.ssrv.su:8080/static/images/1.mp3`;
         } else {
-            alert(parsed.error || "Не удалось сгенерировать контент");
+            alert(parsed1.error || "Не удалось сгенерировать контент");
         }
     } catch (e) {
         console.error("Ошибка генерации:", e);
@@ -225,16 +242,14 @@ function handleWebSocketRequest(data) {
                         ? await event.data.text()
                         : event.data;
                 buffer += chunk;
+                console.log(chunk);
                 try {
                     const parsed = JSON.parse(chunk);
-                    // Предполагаем, что сервер вернёт объект вида:
-                    // { status: 'success', generated_text, image_url, music_url }
                     if (
                         parsed.status === "success" ||
                         parsed.status === "error"
                     ) {
                         isResolved = true;
-                        ws.close();
                         resolve(parsed);
                     }
                 } catch {

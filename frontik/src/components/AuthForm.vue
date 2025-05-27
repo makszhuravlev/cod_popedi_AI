@@ -104,13 +104,10 @@ async function submit() {
             formData.append("password", password.value);
 
             // Отправка запроса на сервер
-            const response = await fetch(
-                "https://katuscha.ssrv.su:8080/token",
-                {
-                    method: "POST",
-                    body: formData,
-                },
-            );
+            const response = await fetch("http://katuscha.ssrv.su:8443/token", {
+                method: "POST",
+                body: formData,
+            });
 
             // Обработка ответа сервера
             const result = await response.json();
@@ -149,7 +146,7 @@ async function submit() {
 
             // Отправка запроса на регистрацию
             const response = await fetch(
-                "https://katuscha.ssrv.su:8080/register",
+                "http://katuscha.ssrv.su:8443/register",
                 {
                     method: "POST",
                     headers: {

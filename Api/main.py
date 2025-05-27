@@ -19,15 +19,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 origins = [
-    "https://katuscha.ssrv.su",
-    "https://ai.katuscha.ssrv.su",
-    "http://10.0.8.15:5173",
+
 ]
 
 # Добавление CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,                # разрешённые источники
+    allow_origins=["*"],                # разрешённые источники
     allow_credentials=True,
     allow_methods=["*"],                  # разрешённые HTTP методы
     allow_headers=["*"],                  # разрешённые заголовки
