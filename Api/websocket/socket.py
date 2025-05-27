@@ -10,10 +10,13 @@ import base64
 import uuid
 import httpx
 from typing import Dict, List
+import random
+import asyncio
+
 
 IMAGES_DIR = Path("static/images")
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-GENERATOR_IMG_URL = "https://10.0.8.15/sdapi/v1/txt2img"
+GENERATOR_IMG_URL = "http://10.0.8.15/sdapi/v1/txt2img"
 GENERATOR_TEXT_URL = "http://10.0.8.15:11434/api/generate"
 
 async def websocket_endpoint(websocket: WebSocket):
@@ -161,7 +164,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     try:
                         raw_json = json.dumps({
                             "model": "cnshenyang/qwen3-nothink:14b",
-                            "prompt": f"Я сейчас передам тебе текст введённый пользователем. Ты должен вывести стилистический текст в виде письма военнослужащего/военнослужащей. Соблюдай мораль и старайся соблюсти полную стилисту Великой Отечественной войны. Не пиши от лица немцев. Пиши от лица советских солдат. {input_text}",
+                            "prompt": f"Я сейчас передам тебе текст введённый пользователем. Ты должен вывести стилистический текст в виде письма военнослужащего/военнослужащей. Соблюдай мораль и старайся соблюсти полную стилисту Великой Отечественной войны. Не пиши от лица немцев. Пиши от лица советских солдат. {input_text}. ОГРАНИЧЕНИЕ ПО сиволам в 200 симвовлов",
                             "stream": False
                         })
 
@@ -293,6 +296,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     })
 
                 elif action == "music":
+
                     # Генерация музыки (заглушка)
                     async with httpx.AsyncClient() as client:
                         response = await client.post(
@@ -317,12 +321,37 @@ async def websocket_endpoint(websocket: WebSocket):
                     db.add(new_file)
                     db.commit()
 
-                    await websocket.send_json({
-                        "status": "success",
-                        "message": "Музыка сгенерирована (заглушка)",
-                        "music_url": music_url,
-                        "request_text": request.text
-                    })
+                    # await websocket.send_json({
+                    #     "status": "success",
+                    #     "message": "Музыка сгенерирована (заглушка)",
+                    #     "music_url": music_url,
+                    #     "request_text": request.text
+                    # })
+                    try:
+                        delay = random.randint(5, 10)
+                        await asyncio.sleep(delay)
+
+                        music_url = random.choice(MUSIC_PLACEHOLDER_URLS)
+
+                        # Сохраняем файл в заявку
+                        new_file = GeneratedFile(
+                            request_id=1,
+                            file_url=music_url,
+                            file_type=FileType.music
+                        )
+                        db.add(new_file)
+                        db.commit()
+
+                        await websocket.send_json({
+                            "status": "success",
+                            "message": f"Музыка сгенерирована за {delay} секунд",
+                            "music_url": music_url,
+                        })
+                    except Exception as e:
+                        await websocket.send_json({
+                            "status": "error",
+                            "message": f"Ошибка при генерации музыки: {e}"
+                        })
 
                 elif action == "get_files":
                     # Получаем все файлы для этой заявки
