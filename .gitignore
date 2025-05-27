@@ -5,6 +5,6 @@ __pycache__
 *.pyc
 Api/auth/__pycache__/routes.cpython-313.pyc
 Api/websocket/__pycache__/socket.cpython-313.pyc
-/stable-diffusion-webui/venv
+stable-diffusion-webui/venv
 *.safetensors
 .DS_Store
