@@ -149,7 +149,7 @@ const hasAnyContent = computed(() => {
 });
 
 // URL для WebSocket
-const WS_URL = `ws://10.0.8.15:8000/ws?token=${localStorage.getItem(
+const WS_URL = `ws://katuscha.ssrv.su:8080/ws?token=${localStorage.getItem(
     "access_token",
 )}`;
 
@@ -190,11 +190,11 @@ async function onGenerateClick() {
                 parsed.generated_text ||
                 "ыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыфыввыфвыфвыфвыфвыф";
             generatedImageUrl.value = parsed.image_url
-                ? "https://katuscha.ssrv.su:8000" + parsed.image_url
+                ? "https://katuscha.ssrv.su:8080" + parsed.image_url
                 : null;
             generatedMusicUrl.value =
                 parsed.music_url ||
-                `https://ai.katuscha.ssrv.su:8000/static/images/1.mp3`;
+                `https://katuscha.ssrv.su:8080/static/images/1.mp3`;
         } else {
             alert(parsed.error || "Не удалось сгенерировать контент");
         }
